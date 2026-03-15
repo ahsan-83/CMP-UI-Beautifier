@@ -1,15 +1,226 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Trash2, FileText, ChevronRight, Check } from "lucide-react";
+import { Trash2, FileText, ChevronRight, Check, Upload, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+
+/* ─── File drop zone ──────────────────────────────────── */
+
+function ApprovalDropZone({ file, onFile }: { file: File | null; onFile: (f: File) => void }) {
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div
+      onDragOver={e => { e.preventDefault(); setDragging(true); }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={e => {
+        e.preventDefault(); setDragging(false);
+        const f = e.dataTransfer.files[0]; if (f) onFile(f);
+      }}
+      onClick={() => inputRef.current?.click()}
+      className={`border-2 border-dashed rounded-lg py-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors ${
+        dragging ? "border-primary bg-primary/5" : "border-slate-300 hover:border-primary/50 hover:bg-slate-50"
+      }`}
+    >
+      <input ref={inputRef} type="file" className="hidden"
+        onChange={e => { if (e.target.files?.[0]) onFile(e.target.files[0]); }} />
+      <Upload className="w-4 h-4 text-slate-400" />
+      {file
+        ? <p className="text-sm font-medium text-primary">{file.name}</p>
+        : <p className="text-sm text-slate-500">
+            Drag & Drop file here or{" "}
+            <span className="text-primary font-semibold underline">Browse</span>
+          </p>
+      }
+    </div>
+  );
+}
+
+/* ─── Checkout Dialog ─────────────────────────────────── */
+
+function CheckoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { toast } = useToast();
+  const [approvalFile, setApprovalFile] = useState<File | null>(null);
+
+  const SELECTED = [
+    { service: "Email Service", pkg: "Standard", total: 1050 },
+    { service: "Email Service", pkg: "Standard", total: 1050 },
+  ];
+  const subtotal = 1000;
+  const totalAmount = 1050;
+
+  const handleConfirm = () => {
+    onOpenChange(false);
+    toast({ title: "Order Confirmed!", description: "Your order has been placed successfully." });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden rounded-2xl">
+
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-r from-primary to-purple-600 px-6 py-5 text-white">
+          <h2 className="text-xl font-bold">Checkout Wishlist</h2>
+          <p className="text-sm text-white/80 mt-1">Assign contract and service for your selected resources</p>
+        </div>
+
+        {/* Body: two columns */}
+        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 max-h-[70vh] overflow-hidden">
+
+          {/* Left column */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-white">
+
+            {/* Select Contract 1 */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" /> Select Contract
+              </Label>
+              <Select>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Choose a contract..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ndc-00075">NDC-00075</SelectItem>
+                  <SelectItem value="ndc-00076">NDC-00076</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Select Contract 2 */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" /> Select Contract
+              </Label>
+              <Select>
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Choose a contract..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ndc-00075">NDC-00075</SelectItem>
+                  <SelectItem value="ndc-00076">NDC-00076</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Select Service */}
+            <div className="space-y-1.5">
+              <Label className="text-sm font-bold flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-primary" /> Select Service
+              </Label>
+              <Select disabled>
+                <SelectTrigger className="bg-slate-50 text-slate-400">
+                  <SelectValue placeholder="Select contract first" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">Email Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Order Summary box */}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
+              <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
+                  <ShoppingCart className="w-3 h-3 text-primary" />
+                </div>
+                Order Summary
+              </h4>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Items in cart:</span>
+                <span className="font-semibold">1</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Total amount:</span>
+                <span className="font-bold text-primary">৳ {totalAmount.toLocaleString()}.00</span>
+              </div>
+            </div>
+
+            {/* Approval file upload */}
+            <div className="space-y-2">
+              <p className="text-xs text-rose-500 font-medium">
+                * Please submit official approval letter for this order
+              </p>
+              <ApprovalDropZone file={approvalFile} onFile={setApprovalFile} />
+            </div>
+          </div>
+
+          {/* Right column */}
+          <div className="w-full md:w-64 lg:w-72 shrink-0 overflow-y-auto p-5 bg-slate-50/50 space-y-4">
+            {SELECTED.map((item, i) => (
+              <div key={i} className="space-y-3">
+                {/* Section header */}
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                    <ShoppingCart className="w-3 h-3 text-primary" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">Selected Resources (1)</span>
+                </div>
+
+                {/* Resource card */}
+                <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
+                      <span className="text-white text-xs font-bold">1</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-foreground leading-tight">{item.service}</p>
+                      <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-primary/20 text-[10px] mt-0.5">
+                        {item.pkg}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {i === SELECTED.length - 1 && (
+                    <div className="pt-2 border-t border-dashed border-slate-200 flex justify-between items-center">
+                      <span className="text-xs text-slate-500 font-medium">Item Total:</span>
+                      <span className="font-bold text-primary text-sm">৳ {item.total}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-white border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-xs text-slate-500 flex items-center gap-1.5">
+            <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[9px] font-bold text-slate-400 shrink-0">i</span>
+            Review your selections before confirming
+          </p>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button
+              onClick={handleConfirm}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-1.5"
+            >
+              <Check className="w-4 h-4" /> Confirm Order
+            </Button>
+          </div>
+        </div>
+
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────── */
 
 export default function WishlistPage() {
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
   return (
     <AppLayout withSidebar>
       <div className="flex flex-col h-full gap-6">
-        
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">Wish List Items</h1>
           <div className="flex items-center gap-3">
@@ -48,7 +259,7 @@ export default function WishlistPage() {
                       <Badge variant="secondary" className="bg-slate-100 text-slate-700">৳ 5000</Badge>
                     </div>
                   </div>
-                  
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
                       <thead className="text-xs text-muted-foreground bg-slate-50/50 uppercase">
@@ -105,8 +316,11 @@ export default function WishlistPage() {
                   <span className="text-primary">৳ 15,750.00</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground text-right mt-1">(including VAT)</p>
-                
-                <Button className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-xl shadow-sm transition-all hover:shadow">
+
+                <Button
+                  onClick={() => setCheckoutOpen(true)}
+                  className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-xl shadow-sm transition-all hover:shadow"
+                >
                   Proceed to Checkout <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </CardContent>
@@ -115,6 +329,8 @@ export default function WishlistPage() {
         </div>
 
       </div>
+
+      <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} />
     </AppLayout>
   );
 }
