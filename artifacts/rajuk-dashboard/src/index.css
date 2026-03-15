@@ -43,26 +43,25 @@
 
 :root {
   /* Clean professional government portal theme */
-  --background: 210 33% 98%;      /* Very light slate/blue for background */
-  --foreground: 222 47% 11%;      /* Deep blue/slate for text */
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
   
-  --card: 0 0% 100%;              /* White cards */
+  --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
   
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
   
-  /* Government Blue */
-  --primary: 215 100% 35%;        
+  --primary: 221 83% 53%;
   --primary-foreground: 210 40% 98%;
   
   --secondary: 210 40% 96%;
   --secondary-foreground: 222 47% 11%;
   
-  --muted: 210 40% 94%;
+  --muted: 210 40% 96%;
   --muted-foreground: 215 16% 47%;
   
-  --accent: 214 32% 91%;
+  --accent: 210 40% 96%;
   --accent-foreground: 222 47% 11%;
   
   --destructive: 0 84% 60%;
@@ -70,8 +69,11 @@
 
   --border: 214 32% 91%;
   --input: 214 32% 91%;
-  --ring: 215 100% 35%;
+  --ring: 221 83% 53%;
   
+  --sidebar: 222 47% 11%;
+  --sidebar-foreground: 210 40% 98%;
+
   --radius: 0.75rem;
 }
 

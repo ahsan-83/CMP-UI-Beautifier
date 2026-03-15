@@ -1,5 +1,5 @@
-import { Bell, Search, ShoppingCart, LogOut, Settings, User } from "lucide-react";
-import { Link } from "wouter";
+import { Bell, Search, ShoppingCart, LogOut, Settings, User, Menu } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -10,8 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function TopNav() {
+export function TopNav({ onMenuClick }: { onMenuClick?: () => void }) {
   const { toast } = useToast();
+  const [location] = useLocation();
 
   const handleNotifications = () => {
     toast({
@@ -32,7 +33,16 @@ export function TopNav() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         
         {/* Left: Logos & Branding */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 lg:gap-6">
+          {onMenuClick && (
+            <button 
+              onClick={onMenuClick}
+              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+
           <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-95">
             <img 
               src={`${import.meta.env.BASE_URL}images/gov-logo.png`} 
@@ -49,9 +59,9 @@ export function TopNav() {
           <div className="h-6 w-px bg-border hidden lg:block" />
           
           <div className="hidden lg:flex items-center gap-4 text-xs font-semibold text-muted-foreground">
-            <span className="hover:text-primary transition-colors cursor-pointer">ICT DIVISION</span>
-            <span className="hover:text-primary transition-colors cursor-pointer">BCC</span>
-            <span className="hover:text-primary transition-colors cursor-pointer">NDC</span>
+            <Link href="/contracts" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/contracts') ? 'text-primary' : ''}`}>CONTRACTS</Link>
+            <Link href="/orders" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/orders') ? 'text-primary' : ''}`}>ORDERS</Link>
+            <Link href="/wishlist" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/wishlist') ? 'text-primary' : ''}`}>WISHLIST</Link>
           </div>
         </div>
 
@@ -77,10 +87,12 @@ export function TopNav() {
             onClick={handleCart}
             className="relative p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-all group"
           >
-            <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-              2
-            </span>
+            <Link href="/wishlist">
+              <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                2
+              </span>
+            </Link>
           </button>
 
           <button 
