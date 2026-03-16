@@ -1,4 +1,5 @@
-import { Bell, Search, ShoppingCart, LogOut, Settings, User, Menu, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Bell, Search, ShoppingCart, LogOut, Settings, User, Menu, ChevronRight, KeyRound, Eye, EyeOff, Lock, ShieldCheck } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -10,12 +11,129 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 import bccLogo from "@assets/bcc1_1773630819853.png";
 import ictLogo from "@assets/ictd_1773630825193.png";
 import ndcLogo from "@assets/ndc-logo-colored_1773630831365.jpg";
 
 import { NOTIFICATIONS, UNREAD_COUNT } from "@/data/notifications";
+
+/* ── Change Password Dialog ────────────────────────────── */
+
+function PasswordField({
+  id, label, value, onChange, show, onToggle, placeholder = "Password",
+}: {
+  id: string; label: string; value: string; onChange: (v: string) => void;
+  show: boolean; onToggle: () => void; placeholder?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id} className="text-sm font-semibold text-slate-700">{label}</Label>
+      <div className="relative">
+        <Input
+          id={id}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          required
+          className="h-11 pr-11 border-slate-200 bg-white text-sm focus-visible:ring-indigo-400/30 focus-visible:border-indigo-400"
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-indigo-500 hover:text-indigo-700 rounded transition-colors focus:outline-none"
+        >
+          {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ChangePasswordDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { toast } = useToast();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNext, setShowNext] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [mismatch, setMismatch] = useState(false);
+
+  const reset = () => {
+    setCurrent(""); setNext(""); setConfirm("");
+    setShowCurrent(false); setShowNext(false); setShowConfirm(false);
+    setMismatch(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (next !== confirm) { setMismatch(true); return; }
+    toast({ title: "Password Changed", description: "Your password has been updated successfully." });
+    onOpenChange(false);
+    reset();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden rounded-2xl">
+        {/* Top accent bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600" />
+
+        <DialogHeader className="px-8 pt-7 pb-2 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="p-3.5 bg-indigo-50 rounded-2xl border border-indigo-100 shadow-sm">
+              <Lock className="w-6 h-6 text-indigo-600" />
+            </div>
+          </div>
+          <DialogTitle className="text-xl font-bold text-foreground tracking-tight">Change Password</DialogTitle>
+          <p className="text-sm text-muted-foreground mt-1">Update your account password below</p>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="px-8 pb-8 pt-5 space-y-4">
+          <PasswordField
+            id="cp-current" label="Current Password"
+            value={current} onChange={setCurrent}
+            show={showCurrent} onToggle={() => setShowCurrent((v) => !v)}
+          />
+          <PasswordField
+            id="cp-new" label="New Password"
+            value={next} onChange={(v) => { setNext(v); setMismatch(false); }}
+            show={showNext} onToggle={() => setShowNext((v) => !v)}
+          />
+          <PasswordField
+            id="cp-confirm" label="Confirm Password"
+            value={confirm} onChange={(v) => { setConfirm(v); setMismatch(false); }}
+            show={showConfirm} onToggle={() => setShowConfirm((v) => !v)}
+          />
+
+          {mismatch && (
+            <p className="text-xs text-red-500 flex items-center gap-1.5 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              New Password and Confirm Password do not match.
+            </p>
+          )}
+
+          <div className="pt-2 flex gap-3">
+            <Button type="button" variant="outline" onClick={() => { onOpenChange(false); reset(); }}
+              className="flex-1 h-11 rounded-xl text-sm font-semibold border-slate-200">
+              Cancel
+            </Button>
+            <Button type="submit"
+              className="flex-1 h-11 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200">
+              Submit
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 /* ── Notification dropdown ─────────────────────────────── */
 
@@ -99,8 +217,10 @@ export function TopNav({
   sidebarOpen?: boolean;
 }) {
   const { toast } = useToast();
+  const [changePassOpen, setChangePassOpen] = useState(false);
 
   return (
+    <>
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-white shadow-sm shrink-0">
       <div className="px-4 h-16 flex items-center justify-between gap-4">
 
@@ -179,6 +299,14 @@ export function TopNav({
                 <Settings className="w-4 h-4 mr-2" />
                 Account Settings
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setChangePassOpen(true)}
+                className="cursor-pointer rounded-lg px-3 py-2 text-sm text-foreground/80 focus:bg-indigo-50 focus:text-indigo-700 transition-colors"
+              >
+                <KeyRound className="w-4 h-4 mr-2" />
+                Change Password
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer rounded-lg px-3 py-2 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -188,5 +316,8 @@ export function TopNav({
         </div>
       </div>
     </header>
+
+    <ChangePasswordDialog open={changePassOpen} onOpenChange={setChangePassOpen} />
+    </>
   );
 }
