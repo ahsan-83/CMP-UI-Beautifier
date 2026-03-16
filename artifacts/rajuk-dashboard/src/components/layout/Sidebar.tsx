@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard, FileText, Cloud, PlusCircle, Heart, History,
-  Phone, Mail, Menu, Users
+  Phone, Mail, Menu, Users, Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ const menuItems = [
   { icon: PlusCircle,      label: "Request Based Service", href: "/request-services" },
   { icon: Heart,           label: "My WishList",           href: "/wishlist" },
   { icon: History,         label: "Order History",         href: "/orders" },
+  { icon: Package,         label: "Inventory",             href: "/inventory" },
 ];
 
 export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
