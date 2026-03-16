@@ -45,7 +45,7 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
       </div>
 
       {/* ── Navigation items ── */}
-      <nav className="flex-1 py-5 px-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 py-3 px-2.5 space-y-0.5 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive =
             location === item.href ||
@@ -54,16 +54,16 @@ export function Sidebar({ className, isOpen = true, onToggle }: SidebarProps) {
             <Link key={item.label} href={item.href}>
               <div
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-sm font-medium group",
+                  "flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all text-xs font-medium group",
                   isActive
                     ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "text-slate-300 hover:bg-white/8 hover:text-white"
+                    : "text-slate-400 hover:bg-white/10 hover:text-white"
                 )}
               >
                 <item.icon
                   className={cn(
-                    "w-[18px] h-[18px] shrink-0 transition-colors",
-                    isActive ? "text-white" : "text-slate-400 group-hover:text-slate-200"
+                    "w-4 h-4 shrink-0 transition-colors",
+                    isActive ? "text-white" : "text-slate-500 group-hover:text-slate-300"
                   )}
                 />
                 <span className="truncate">{item.label}</span>

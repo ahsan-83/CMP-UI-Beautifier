@@ -13,30 +13,42 @@ export function AppLayout({ children, withSidebar = false }: LayoutProps) {
 
   return (
     <div className="h-screen flex overflow-hidden bg-slate-50">
-      {/* Left: Full-height sidebar */}
+
       {withSidebar && (
         <>
-          {/* Mobile overlay */}
-          {sidebarOpen && (
-            <div
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
-
+          {/* Mobile backdrop */}
           <div
             className={cn(
-              "fixed inset-y-0 left-0 z-50 transform transition-all duration-300 ease-in-out",
-              "lg:relative lg:translate-x-0",
-              sidebarOpen ? "translate-x-0" : "-translate-x-full lg:w-0 lg:overflow-hidden"
+              "fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300",
+              sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            )}
+            onClick={() => setSidebarOpen(false)}
+          />
+
+          {/* Desktop: width-collapse animation | Mobile: slide-in */}
+          <div
+            className={cn(
+              "shrink-0 overflow-hidden transition-all duration-300 ease-in-out",
+              /* desktop */ "hidden lg:block",
+              sidebarOpen ? "lg:w-64" : "lg:w-0"
             )}
           >
-            <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(false)} />
+            <Sidebar onToggle={() => setSidebarOpen(false)} />
+          </div>
+
+          {/* Mobile: fixed slide-in */}
+          <div
+            className={cn(
+              "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out lg:hidden",
+              sidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <Sidebar onToggle={() => setSidebarOpen(false)} />
           </div>
         </>
       )}
 
-      {/* Right: TopNav + content */}
+      {/* Main area: TopNav + content */}
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <TopNav
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}

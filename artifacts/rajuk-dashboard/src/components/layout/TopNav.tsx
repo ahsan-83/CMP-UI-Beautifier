@@ -1,5 +1,5 @@
 import { Bell, Search, ShoppingCart, LogOut, Settings, User, Menu } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
@@ -11,6 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import bccLogo from "@assets/bcc1_1773630819853.png";
+import ictLogo from "@assets/ictd_1773630825193.png";
+import ndcLogo from "@assets/ndc-logo-colored_1773630831365.jpg";
+
 export function TopNav({
   onMenuClick,
   showMenuButton = false,
@@ -21,29 +25,14 @@ export function TopNav({
   sidebarOpen?: boolean;
 }) {
   const { toast } = useToast();
-  const [location] = useLocation();
-
-  const handleNotifications = () => {
-    toast({
-      title: "No new notifications",
-      description: "You're all caught up!",
-    });
-  };
-
-  const handleCart = () => {
-    toast({
-      title: "Cart Opened",
-      description: "You have 2 items awaiting action.",
-    });
-  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-white/80 backdrop-blur-xl shadow-sm">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        
-        {/* Left: Logos & Branding */}
-        <div className="flex items-center gap-4 lg:gap-6">
-          {/* Hamburger: always on mobile, only when sidebar closed on desktop */}
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-white shadow-sm shrink-0">
+      <div className="px-4 h-16 flex items-center justify-between gap-4">
+
+        {/* Left: Hamburger + Logos */}
+        <div className="flex items-center gap-3">
+          {/* Hamburger — always on mobile; on desktop only when sidebar is closed */}
           {showMenuButton && (
             <button
               onClick={onMenuClick}
@@ -56,60 +45,46 @@ export function TopNav({
             </button>
           )}
 
-          <Link href="/" className="flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-95">
-            <img 
-              src={`${import.meta.env.BASE_URL}images/gov-logo.png`} 
-              alt="Gov Logo" 
-              className="w-10 h-10 object-contain drop-shadow-sm"
-              onError={(e) => (e.currentTarget.style.display = 'none')}
-            />
-            <div className="hidden sm:flex flex-col">
-              <span className="text-[10px] font-bold tracking-widest text-primary uppercase">Government of</span>
-              <span className="text-sm font-black text-foreground uppercase tracking-wider">Bangladesh</span>
-            </div>
+          {/* Three brand logos */}
+          <Link href="/" className="flex items-center gap-3">
+            <img src={ictLogo}  alt="ICT Division" className="h-9 w-auto object-contain" />
+            <div className="w-px h-6 bg-slate-200" />
+            <img src={bccLogo}  alt="BCC"          className="h-8 w-auto object-contain" />
+            <div className="w-px h-6 bg-slate-200" />
+            <img src={ndcLogo}  alt="NDC"          className="h-8 w-auto object-contain" />
           </Link>
-
-          <div className="h-6 w-px bg-border hidden lg:block" />
-          
-          <div className="hidden lg:flex items-center gap-4 text-xs font-semibold text-muted-foreground">
-            <Link href="/contracts" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/contracts') ? 'text-primary' : ''}`}>CONTRACTS</Link>
-            <Link href="/orders" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/orders') ? 'text-primary' : ''}`}>ORDERS</Link>
-            <Link href="/wishlist" className={`hover:text-primary transition-colors cursor-pointer ${location.startsWith('/wishlist') ? 'text-primary' : ''}`}>WISHLIST</Link>
-          </div>
         </div>
 
-        {/* Center: Email / Identity */}
+        {/* Center: User email pill */}
         <div className="hidden md:flex flex-1 justify-center">
-          <div className="px-4 py-1.5 rounded-full bg-slate-100/80 border border-slate-200 text-xs font-medium text-slate-600 shadow-inner flex items-center gap-2">
+          <div className="px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-600 flex items-center gap-2">
             <User className="w-3.5 h-3.5 text-primary" />
             programmer_raj@dhaka.gov.bd
           </div>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          
-          <button 
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
             onClick={() => toast({ title: "Search", description: "Search feature coming soon." })}
             className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-all"
           >
             <Search className="w-5 h-5" />
           </button>
 
-          <button 
-            onClick={handleCart}
+          <button
             className="relative p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-all group"
           >
             <Link href="/wishlist">
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+              <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                 2
               </span>
             </Link>
           </button>
 
-          <button 
-            onClick={handleNotifications}
+          <button
+            onClick={() => toast({ title: "No new notifications", description: "You're all caught up!" })}
             className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-all group"
           >
             <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -119,12 +94,12 @@ export function TopNav({
 
           <DropdownMenu>
             <DropdownMenuTrigger className="focus:outline-none rounded-full ring-2 ring-transparent focus-visible:ring-primary/20 transition-all hover:ring-primary/30">
-              <img 
-                src={`${import.meta.env.BASE_URL}images/user-avatar.png`} 
-                alt="User Avatar" 
+              <img
+                src={`${import.meta.env.BASE_URL}images/user-avatar.png`}
+                alt="User Avatar"
                 className="w-9 h-9 rounded-full object-cover shadow-sm border border-border"
                 onError={(e) => {
-                  e.currentTarget.src = `https://ui-avatars.com/api/?name=Programmer+Raj&background=0D8ABC&color=fff`;
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=Programmer+Raj&background=1e4db7&color=fff`;
                 }}
               />
             </DropdownMenuTrigger>
@@ -144,7 +119,6 @@ export function TopNav({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
         </div>
       </div>
     </header>
