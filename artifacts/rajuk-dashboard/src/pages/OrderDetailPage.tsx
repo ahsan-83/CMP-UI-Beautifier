@@ -2,13 +2,16 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Link, useParams } from "wouter";
 import {
   ChevronRight, FileText, Calendar, Building,
-  ShoppingCart, Download, XCircle, Eye, ChevronDown, Truck, CheckCircle2
+  ShoppingCart, Download, XCircle, Eye, ChevronDown, Truck, CheckCircle2,
+  Zap, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { ORDERS } from "./OrderListPage";
 
 /* ─── View Attributes Dialog ─────────────────────────────── */
@@ -290,8 +293,23 @@ export default function OrderDetailPage() {
   const isCompleted = order.status === "DELIVERED";
   const [attrOpen, setAttrOpen] = useState(false);
   const [attrPkg, setAttrPkg] = useState("Basic");
+  const [activationDate, setActivationDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [activationTime, setActivationTime] = useState("00:00");
+  const [activated, setActivated] = useState(false);
+  const { toast } = useToast();
 
   const openAttr = (pkg: string) => { setAttrPkg(pkg); setAttrOpen(true); };
+
+  const handleActivate = () => {
+    if (!activationDate) return;
+    setActivated(true);
+    toast({
+      title: "Order Activated",
+      description: `Activation scheduled for ${activationDate} at ${activationTime || "--:--"}.`,
+    });
+  };
 
   const totalCost = isCompleted ? "৳ 17100" : isChangePackage ? "৳ 0" : "৳ 25000";
   const trackingSteps = isCompleted ? 3 : 1;
@@ -442,42 +460,98 @@ export default function OrderDetailPage() {
 
               {/* ── Change Package layout ── */}
               {isChangePackage && (
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-white bg-primary uppercase font-bold tracking-wider">
-                    <tr>
-                      <th className="px-5 py-4">Service Name</th>
-                      <th className="px-5 py-4">Package Name</th>
-                      <th className="px-5 py-4">Attribute</th>
-                      <th className="px-5 py-4 text-center">Previous Quantity</th>
-                      <th className="px-5 py-4 text-center">Requested Quantity</th>
-                      <th className="px-5 py-4 text-center">Monthly Fee</th>
-                      <th className="px-5 py-4 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/60">
-                    {CHANGE_PACKAGE_ROWS.map((row, i) => (
-                      <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-4 font-semibold text-slate-800">{row.service}</td>
-                        <td className="px-5 py-4">
-                          <Badge variant="outline" className="bg-slate-50 font-medium">{row.pkg}</Badge>
-                        </td>
-                        <td className="px-5 py-4 text-slate-600 text-xs">{row.attribute}</td>
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">{row.prevQty}</td>
-                        <td className="px-5 py-4 text-center font-bold text-primary">{row.reqQty}</td>
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">{row.fee}</td>
-                        <td className="px-5 py-4 text-center">
-                          {row.hasAttachment ? (
-                            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 font-semibold">
-                              Download Attachment
-                            </Button>
-                          ) : (
-                            <span className="text-slate-300">-</span>
-                          )}
-                        </td>
+                <>
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-white bg-primary uppercase font-bold tracking-wider">
+                      <tr>
+                        <th className="px-5 py-4">Service Name</th>
+                        <th className="px-5 py-4">Package Name</th>
+                        <th className="px-5 py-4">Attribute</th>
+                        <th className="px-5 py-4 text-center">Previous Quantity</th>
+                        <th className="px-5 py-4 text-center">Requested Quantity</th>
+                        <th className="px-5 py-4 text-center">Monthly Fee</th>
+                        <th className="px-5 py-4 text-center">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-border/60">
+                      {CHANGE_PACKAGE_ROWS.map((row, i) => (
+                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-4 font-semibold text-slate-800">{row.service}</td>
+                          <td className="px-5 py-4">
+                            <Badge variant="outline" className="bg-slate-50 font-medium">{row.pkg}</Badge>
+                          </td>
+                          <td className="px-5 py-4 text-slate-600 text-xs">{row.attribute}</td>
+                          <td className="px-5 py-4 text-center font-semibold text-slate-700">{row.prevQty}</td>
+                          <td className="px-5 py-4 text-center font-bold text-primary">{row.reqQty}</td>
+                          <td className="px-5 py-4 text-center font-semibold text-slate-700">{row.fee}</td>
+                          <td className="px-5 py-4 text-center">
+                            {row.hasAttachment ? (
+                              <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 font-semibold">
+                                Download Attachment
+                              </Button>
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* ── Activation Bar ── */}
+                  <div className="border-t border-border/60 bg-slate-50/60 px-5 py-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      {/* Label */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="p-1.5 bg-primary/10 rounded-lg">
+                          <Calendar className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-bold text-slate-700">Activation Date</span>
+                      </div>
+
+                      {/* Date + Time inputs */}
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="relative">
+                          <Input
+                            type="date"
+                            value={activationDate}
+                            onChange={(e) => setActivationDate(e.target.value)}
+                            disabled={activated}
+                            className="h-9 w-44 border-slate-200 bg-white text-sm focus-visible:ring-primary/30 disabled:opacity-60 disabled:cursor-not-allowed pr-8"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative">
+                            <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                            <Input
+                              type="time"
+                              value={activationTime}
+                              onChange={(e) => setActivationTime(e.target.value)}
+                              disabled={activated}
+                              className="h-9 w-36 pl-8 border-slate-200 bg-white text-sm focus-visible:ring-primary/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Activate button */}
+                      {activated ? (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg shrink-0">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span className="text-sm font-bold text-emerald-700">Activated</span>
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={handleActivate}
+                          disabled={!activationDate}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-9 px-6 rounded-lg shadow-sm shrink-0 gap-1.5"
+                        >
+                          <Zap className="w-4 h-4" /> Activate
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
 
               {/* ── Pending New Request layout ── */}
