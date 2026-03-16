@@ -18,9 +18,9 @@ export function Toaster() {
         return (
           React.createElement(Toast, { key: id, ...props}
             , React.createElement('div', { className: "grid gap-1" }
-              , title && React.createElement(ToastTitle, title)
+              , title && React.createElement(ToastTitle, null, title)
               , description && (
-                React.createElement(ToastDescription, description)
+                React.createElement(ToastDescription, null, description)
               )
             )
             , action

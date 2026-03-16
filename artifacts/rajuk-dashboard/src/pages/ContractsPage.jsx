@@ -396,9 +396,9 @@ export default function ContractsPage() {
                         )
                       )
                       , React.createElement('div', { className: "flex items-center gap-1.5 text-xs text-slate-400"    }
-                        , React.createElement('span', c.start)
+                        , React.createElement('span', null, c.start)
                         , React.createElement('span', null, "→")
-                        , React.createElement('span', c.end)
+                        , React.createElement('span', null, c.end)
                       )
                     )
                   )

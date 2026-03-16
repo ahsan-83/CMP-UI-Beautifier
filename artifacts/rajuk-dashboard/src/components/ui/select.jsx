@@ -128,7 +128,7 @@ const SelectItem = React.forwardRef
         , React.createElement(Check, { className: "h-4 w-4" } )
       )
     )
-    , React.createElement(SelectPrimitive.ItemText, children)
+    , React.createElement(SelectPrimitive.ItemText, null, children)
   )
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
