@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import {
   LayoutDashboard, FileText, Cloud, PlusCircle, Heart, History,
-  Phone, Mail, Menu
+  Phone, Mail, Menu, Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ interface SidebarProps {
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard",             href: "/" },
+  { icon: Users,           label: "Customers",             href: "/customers" },
   { icon: FileText,        label: "Contract & Services",   href: "/contracts" },
   { icon: Cloud,           label: "Cloud Service",         href: "/services/cloud" },
   { icon: PlusCircle,      label: "Request Based Service", href: "/request-services" },
