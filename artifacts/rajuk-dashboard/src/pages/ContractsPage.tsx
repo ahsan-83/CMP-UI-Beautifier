@@ -359,45 +359,51 @@ export default function ContractsPage() {
         <div className="flex flex-col xl:flex-row gap-6">
           
           {/* Left Panel: Contract List */}
-          <div className="xl:w-72 flex flex-col gap-3">
-            <h2 className="text-lg font-bold text-foreground px-1">Contract List</h2>
-            {CONTRACT_LIST.map(c => {
-              const isSelected = c.id === selectedId;
-              const statusStyle =
-                c.status === "ACTIVE"   ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                c.status === "EXPIRED"  ? "bg-rose-50 text-rose-700 border-rose-200" :
-                                          "bg-amber-50 text-amber-700 border-amber-200";
-              return (
-                <Card
-                  key={c.id}
-                  onClick={() => setSelectedId(c.id)}
-                  className={`cursor-pointer transition-all duration-150 shadow-sm ${
-                    isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                      : "border-border bg-white hover:border-primary/40 hover:bg-slate-50/60"
-                  }`}
-                >
-                  <CardContent className="p-4 flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-2">
+          <div className="xl:w-72 flex flex-col rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-sm shrink-0">
+            {/* Panel header */}
+            <div className="px-4 py-3 border-b border-slate-200 bg-slate-100/80 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-foreground">Contract List</h2>
+              <span className="text-xs font-semibold text-slate-400">{CONTRACT_LIST.length} items</span>
+            </div>
+
+            {/* Scrollable list */}
+            <div className="flex flex-col gap-2 p-3 overflow-y-auto max-h-[600px]">
+              {CONTRACT_LIST.map(c => {
+                const isSelected = c.id === selectedId;
+                const statusStyle =
+                  c.status === "ACTIVE"   ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                  c.status === "EXPIRED"  ? "bg-rose-50 text-rose-700 border-rose-200" :
+                                            "bg-amber-50 text-amber-700 border-amber-200";
+                return (
+                  <Card
+                    key={c.id}
+                    onClick={() => setSelectedId(c.id)}
+                    className={`cursor-pointer transition-all duration-150 shadow-sm shrink-0 ${
+                      isSelected
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                        : "border-border bg-white hover:border-primary/40 hover:bg-slate-50/60"
+                    }`}
+                  >
+                    <CardContent className="p-3.5 flex flex-col gap-2">
                       <span className={`font-bold text-sm line-clamp-2 leading-snug ${isSelected ? "text-primary" : "text-foreground"}`}>
                         {c.name}
                       </span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-xs font-mono text-muted-foreground">ID: {c.id}</span>
-                      <Badge variant="outline" className={`text-xs font-semibold ${statusStyle}`}>
-                        {c.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
-                      <span>{c.start}</span>
-                      <span>→</span>
-                      <span>{c.end}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono text-muted-foreground">ID: {c.id}</span>
+                        <Badge variant="outline" className={`text-xs font-semibold ${statusStyle}`}>
+                          {c.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <span>{c.start}</span>
+                        <span>→</span>
+                        <span>{c.end}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
 
           {/* Right Panel: Tabs */}
