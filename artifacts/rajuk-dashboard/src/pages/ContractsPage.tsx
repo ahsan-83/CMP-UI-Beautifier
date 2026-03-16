@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Link } from "wouter";
-import { FileText, Cloud, Mail, AlertTriangle, Edit2, Plus, ExternalLink, ChevronRight, Server } from "lucide-react";
+import { FileText, Cloud, Mail, AlertTriangle, Edit2, Plus, ExternalLink, ChevronRight, Server, FilePlus2, CalendarRange, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -143,8 +143,178 @@ function NewServiceDialog({ open, onOpenChange }: { open: boolean; onOpenChange:
   );
 }
 
+/* ── Add New Contract Dialog ────────────────────────────── */
+function NewContractDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { toast } = useToast();
+  const empty = {
+    projectName: "", webUrl: "", owner: "", billingPrimary: "", billingSecondary: "",
+    serviceName: "", tenureStart: "", tenureEnd: "", manager: "", techPrimary: "", techSecondary: "",
+  };
+  const [form, setForm] = useState(empty);
+  const [tenureError, setTenureError] = useState(false);
+  const [documents, setDocuments] = useState<string[]>([]);
+
+  const set = (key: keyof typeof form) => (val: string) => {
+    setForm((prev) => ({ ...prev, [key]: val }));
+    if (key === "tenureStart" || key === "tenureEnd") setTenureError(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.tenureStart || !form.tenureEnd) { setTenureError(true); return; }
+    toast({ title: "Contract Submitted", description: `"${form.projectName || "New Contract"}" has been submitted for review.` });
+    onOpenChange(false);
+    setForm(empty);
+    setDocuments([]);
+    setTenureError(false);
+  };
+
+  const addDocument = () => setDocuments((d) => [...d, `Document_${d.length + 1}.pdf`]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <DialogHeader className="px-8 pt-6 pb-5 border-b border-border/50 bg-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl">
+              <FilePlus2 className="w-5 h-5 text-primary" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-foreground">Add a New Contract</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        {/* Two-column form */}
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/50 bg-slate-50/60 max-h-[70vh] overflow-y-auto">
+
+            {/* ── LEFT COLUMN ── */}
+            <div className="px-8 py-6 space-y-5">
+              <div className="space-y-1.5">
+                <Label htmlFor="c-project" className="text-sm font-semibold text-foreground">Project Name</Label>
+                <Input id="c-project" value={form.projectName} onChange={(e) => set("projectName")(e.target.value)}
+                  placeholder="Enter project name" className="h-10 border-slate-200 bg-white text-sm focus-visible:ring-primary/30" />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-url" className="text-sm font-semibold text-foreground">Web URL</Label>
+                <Input id="c-url" value={form.webUrl} onChange={(e) => set("webUrl")(e.target.value)}
+                  placeholder="https://example.gov.bd" className="h-10 border-slate-200 bg-white text-sm focus-visible:ring-primary/30" />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-owner" className="text-sm font-semibold text-foreground">
+                  Owner <span className="text-red-500">*</span>
+                </Label>
+                <UserSelect id="c-owner" value={form.owner} onChange={set("owner")} required />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-bill-p" className="text-sm font-semibold text-foreground">
+                  Billing User (Primary) <span className="text-red-500">*</span>
+                </Label>
+                <UserSelect id="c-bill-p" value={form.billingPrimary} onChange={set("billingPrimary")} required />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-bill-s" className="text-sm font-semibold text-slate-600">Billing User (Secondary)</Label>
+                <UserSelect id="c-bill-s" value={form.billingSecondary} onChange={set("billingSecondary")} />
+              </div>
+            </div>
+
+            {/* ── RIGHT COLUMN ── */}
+            <div className="px-8 py-6 space-y-5 flex flex-col">
+              <div className="space-y-1.5">
+                <Label htmlFor="c-svc" className="text-sm font-semibold text-foreground">
+                  Service Name <span className="text-red-500">*</span>
+                </Label>
+                <Input id="c-svc" value={form.serviceName} onChange={(e) => set("serviceName")(e.target.value)}
+                  placeholder="e.g (Mail Service)" required
+                  className="h-10 border-slate-200 bg-white text-sm focus-visible:ring-primary/30" />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-foreground">
+                  Agreement Tenure <span className="text-red-500">*</span>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <CalendarRange className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <Input type="date" value={form.tenureStart} onChange={(e) => set("tenureStart")(e.target.value)}
+                      className={`h-10 pl-9 border-slate-200 bg-white text-sm focus-visible:ring-primary/30 ${tenureError ? "border-red-400 focus-visible:ring-red-300" : ""}`} />
+                  </div>
+                  <span className="text-slate-400 text-sm font-medium shrink-0">–</span>
+                  <div className="relative flex-1">
+                    <CalendarRange className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <Input type="date" value={form.tenureEnd} onChange={(e) => set("tenureEnd")(e.target.value)}
+                      className={`h-10 pl-9 border-slate-200 bg-white text-sm focus-visible:ring-primary/30 ${tenureError ? "border-red-400 focus-visible:ring-red-300" : ""}`} />
+                  </div>
+                </div>
+                {tenureError && (
+                  <p className="text-xs text-red-500 flex items-center gap-1 mt-0.5">
+                    <AlertTriangle className="w-3 h-3" /> Please select a valid Agreement tenure.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-mgr" className="text-sm font-semibold text-foreground">
+                  Manager <span className="text-red-500">*</span>
+                </Label>
+                <UserSelect id="c-mgr" value={form.manager} onChange={set("manager")} required />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-tech-p" className="text-sm font-semibold text-foreground">
+                  Technical User (Primary) <span className="text-red-500">*</span>
+                </Label>
+                <UserSelect id="c-tech-p" value={form.techPrimary} onChange={set("techPrimary")} required />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="c-tech-s" className="text-sm font-semibold text-slate-600">Technical User (Secondary)</Label>
+                <UserSelect id="c-tech-s" value={form.techSecondary} onChange={set("techSecondary")} />
+              </div>
+
+              {/* Document list */}
+              {documents.length > 0 && (
+                <div className="space-y-1.5">
+                  {documents.map((d) => (
+                    <div key={d} className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700">
+                      <FileText className="w-4 h-4 text-primary shrink-0" /> {d}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add Document */}
+              <div className="pt-2">
+                <Button type="button" onClick={addDocument}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-5 text-sm font-semibold rounded-lg shadow-sm">
+                  <Upload className="w-4 h-4 mr-2" /> Add Document
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-8 py-4 flex justify-end border-t border-border/50 bg-white">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="mr-3 h-9 px-6 text-sm">
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-9 rounded-lg shadow-sm">
+              Submit
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ContractsPage() {
   const [newServiceOpen, setNewServiceOpen] = useState(false);
+  const [newContractOpen, setNewContractOpen] = useState(false);
 
   return (
     <AppLayout withSidebar>
@@ -168,6 +338,12 @@ export default function ContractsPage() {
               <div className="text-lg font-bold text-emerald-600">2</div>
               <div className="text-[10px] uppercase font-semibold text-slate-500">Services</div>
             </div>
+            <Button
+              onClick={() => setNewContractOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-white font-semibold h-10 px-5 rounded-xl shadow-sm"
+            >
+              <FilePlus2 className="w-4 h-4 mr-2" /> Add New Contract
+            </Button>
           </div>
         </div>
 
@@ -422,6 +598,7 @@ export default function ContractsPage() {
       </div>
 
       <NewServiceDialog open={newServiceOpen} onOpenChange={setNewServiceOpen} />
+      <NewContractDialog open={newContractOpen} onOpenChange={setNewContractOpen} />
     </AppLayout>
   );
 }
