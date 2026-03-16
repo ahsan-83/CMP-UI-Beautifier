@@ -312,9 +312,18 @@ function NewContractDialog({ open, onOpenChange }: { open: boolean; onOpenChange
   );
 }
 
+const CONTRACT_LIST = [
+  { id: "NDC-00075", name: "EPLOT Service Management System",    status: "ACTIVE",   services: 2, start: "2023-05-18", end: "2040-12-31" },
+  { id: "NDC-00082", name: "Urban Development Portal",           status: "ACTIVE",   services: 3, start: "2024-01-10", end: "2035-06-30" },
+  { id: "NDC-00091", name: "Housing Registry System",            status: "EXPIRED",  services: 1, start: "2021-03-01", end: "2024-02-28" },
+  { id: "NDC-00103", name: "Land Use Planning & Monitoring",     status: "ACTIVE",   services: 4, start: "2024-07-15", end: "2038-07-14" },
+  { id: "NDC-00118", name: "Smart City Infrastructure Services", status: "PENDING",  services: 0, start: "2026-02-01", end: "2031-01-31" },
+];
+
 export default function ContractsPage() {
   const [newServiceOpen, setNewServiceOpen] = useState(false);
   const [newContractOpen, setNewContractOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState("NDC-00075");
 
   return (
     <AppLayout withSidebar>
@@ -331,7 +340,7 @@ export default function ContractsPage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-center px-4 py-2 bg-slate-50 rounded-lg border">
-              <div className="text-lg font-bold text-primary">1</div>
+              <div className="text-lg font-bold text-primary">{CONTRACT_LIST.length}</div>
               <div className="text-[10px] uppercase font-semibold text-slate-500">Contracts</div>
             </div>
             <div className="text-center px-4 py-2 bg-slate-50 rounded-lg border">
@@ -350,19 +359,45 @@ export default function ContractsPage() {
         <div className="flex flex-col xl:flex-row gap-6">
           
           {/* Left Panel: Contract List */}
-          <div className="xl:w-72 flex flex-col gap-4">
+          <div className="xl:w-72 flex flex-col gap-3">
             <h2 className="text-lg font-bold text-foreground px-1">Contract List</h2>
-            <Card className="border-primary shadow-sm bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
-              <CardContent className="p-4 flex flex-col gap-2">
-                <div className="flex items-start justify-between">
-                  <span className="font-bold text-sm text-foreground line-clamp-2">EPLOT Service Management System</span>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs font-mono text-muted-foreground">ID: NDC-00075</span>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">ACTIVE</Badge>
-                </div>
-              </CardContent>
-            </Card>
+            {CONTRACT_LIST.map(c => {
+              const isSelected = c.id === selectedId;
+              const statusStyle =
+                c.status === "ACTIVE"   ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                c.status === "EXPIRED"  ? "bg-rose-50 text-rose-700 border-rose-200" :
+                                          "bg-amber-50 text-amber-700 border-amber-200";
+              return (
+                <Card
+                  key={c.id}
+                  onClick={() => setSelectedId(c.id)}
+                  className={`cursor-pointer transition-all duration-150 shadow-sm ${
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                      : "border-border bg-white hover:border-primary/40 hover:bg-slate-50/60"
+                  }`}
+                >
+                  <CardContent className="p-4 flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className={`font-bold text-sm line-clamp-2 leading-snug ${isSelected ? "text-primary" : "text-foreground"}`}>
+                        {c.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs font-mono text-muted-foreground">ID: {c.id}</span>
+                      <Badge variant="outline" className={`text-xs font-semibold ${statusStyle}`}>
+                        {c.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                      <span>{c.start}</span>
+                      <span>→</span>
+                      <span>{c.end}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Right Panel: Tabs */}
