@@ -1,6 +1,7 @@
 import { Bell, Search, ShoppingCart, LogOut, Settings, User, Menu } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function TopNav({ onMenuClick }: { onMenuClick?: () => void }) {
+export function TopNav({
+  onMenuClick,
+  showMenuButton = false,
+  sidebarOpen = true,
+}: {
+  onMenuClick?: () => void;
+  showMenuButton?: boolean;
+  sidebarOpen?: boolean;
+}) {
   const { toast } = useToast();
   const [location] = useLocation();
 
@@ -34,10 +43,14 @@ export function TopNav({ onMenuClick }: { onMenuClick?: () => void }) {
         
         {/* Left: Logos & Branding */}
         <div className="flex items-center gap-4 lg:gap-6">
-          {onMenuClick && (
-            <button 
+          {/* Hamburger: always on mobile, only when sidebar closed on desktop */}
+          {showMenuButton && (
+            <button
               onClick={onMenuClick}
-              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg"
+              className={cn(
+                "p-2 -ml-1 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all",
+                sidebarOpen ? "lg:hidden" : "flex"
+              )}
             >
               <Menu className="w-5 h-5" />
             </button>
