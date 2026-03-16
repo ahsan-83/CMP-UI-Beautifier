@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useLocation } from "wouter";
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, X, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +48,13 @@ export default function OrderListPage() {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Order List</h1>
+            <div className="p-2.5 bg-blue-50 rounded-xl border border-blue-100">
+              <ClipboardList className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Order List</h1>
+              <p className="text-sm text-muted-foreground">Track and manage your service orders</p>
+            </div>
             <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 text-sm font-bold px-3 py-1">
               Total: 134
             </Badge>

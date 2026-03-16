@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Trash2, FileText, ChevronRight, Check, Upload, ShoppingCart, BarChart2 } from "lucide-react";
+import { Trash2, FileText, ChevronRight, Check, Upload, ShoppingCart, BarChart2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -326,7 +326,15 @@ export default function WishlistPage() {
       <div className="flex flex-col h-full gap-6">
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Wish List Items</h1>
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-rose-50 rounded-xl border border-rose-100">
+              <Heart className="w-6 h-6 text-rose-500" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Wish List Items</h1>
+              <p className="text-sm text-muted-foreground">Services saved for your next order</p>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="font-semibold bg-white">
               <Check className="w-4 h-4 mr-2" /> Select All

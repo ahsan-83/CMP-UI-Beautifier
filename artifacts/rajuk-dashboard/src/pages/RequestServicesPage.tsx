@@ -277,7 +277,15 @@ export default function RequestServicesPage() {
     <AppLayout withSidebar>
       <div className="flex flex-col h-[calc(100vh-100px)]">
 
-        <h1 className="text-3xl font-bold text-foreground mb-6 font-display">Request Based Services</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2.5 bg-violet-50 rounded-xl border border-violet-100">
+            <Server className="w-6 h-6 text-violet-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Request Based Services</h1>
+            <p className="text-sm text-muted-foreground">Browse and request cloud services for your organisation</p>
+          </div>
+        </div>
 
         {/* Category Tab Bar */}
         <div className="flex overflow-x-auto pb-4 gap-2 no-scrollbar mb-4 border-b">
