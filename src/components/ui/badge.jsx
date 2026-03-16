@@ -1,13 +1,11 @@
-import * as React from "react"
-import { cva, } from "class-variance-authority"
-
-import { cn } from "@/lib/utils"
-
+import * as React from "react";
+import { cva } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 const badgeVariants = cva(
   // @replit
   // Whitespace-nowrap: Badges should never wrap.
   "whitespace-nowrap inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2" +
-  " hover-elevate ",
+    " hover-elevate ",
   {
     variants: {
       variant: {
@@ -20,7 +18,7 @@ const badgeVariants = cva(
         destructive:
           // @replit shadow-xs instead of shadow, no hover because we use hover-elevate
           "border-transparent bg-destructive text-destructive-foreground shadow-xs",
-          // @replit shadow-xs" - use badge outline variable
+        // @replit shadow-xs" - use badge outline variable
         outline: "text-foreground border [border-color:var(--badge-outline)]",
       },
     },
@@ -28,16 +26,18 @@ const badgeVariants = cva(
       variant: "default",
     },
   }
-)
-
-
-
-
-
+);
 function Badge({ className, variant, ...props }) {
   return (
-    React.createElement('div', { className: cn(badgeVariants({ variant }), className), ...props} )
-  )
+    <div
+      className={cn(
+        badgeVariants({
+          variant,
+        }),
+        className
+      )}
+      {...props}
+    />
+  );
 }
-
-export { Badge, badgeVariants }
+export { Badge, badgeVariants };

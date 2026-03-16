@@ -3,6 +3,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import ContractsPage from "@/pages/ContractsPage";
 import ServiceDetailPage from "@/pages/ServiceDetailPage";
@@ -20,41 +21,43 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 5,
     },
   },
 });
 
 function Router() {
   return (
-    React.createElement(Switch, {}
-      , React.createElement(Route, { path: "/", component: Dashboard} )
-      , React.createElement(Route, { path: "/contracts", component: ContractsPage} )
-      , React.createElement(Route, { path: "/contracts/:contractId", component: ContractsPage} )
-      , React.createElement(Route, { path: "/services/:serviceId", component: ServiceDetailPage} )
-      , React.createElement(Route, { path: "/request-services", component: RequestServicesPage} )
-      , React.createElement(Route, { path: "/wishlist", component: WishlistPage} )
-      , React.createElement(Route, { path: "/orders", component: OrderListPage} )
-      , React.createElement(Route, { path: "/orders/:orderId", component: OrderDetailPage} )
-      , React.createElement(Route, { path: "/resources/:resourceId", component: ResourceDetailPage} )
-      , React.createElement(Route, { path: "/notifications", component: NotificationsPage} )
-      , React.createElement(Route, { path: "/customers", component: CustomerListPage} )
-      , React.createElement(Route, { path: "/inventory", component: InventoryListPage} )
-      , React.createElement(Route, { component: NotFound} )
-    )
+    <AppLayout withSidebar={true}>
+      <Switch>
+        <Route path="/" component={Dashboard} />
+        <Route path="/contracts" component={ContractsPage} />
+        <Route path="/contracts/:contractId" component={ContractsPage} />
+        <Route path="/services/:serviceId" component={ServiceDetailPage} />
+        <Route path="/request-services" component={RequestServicesPage} />
+        <Route path="/wishlist" component={WishlistPage} />
+        <Route path="/orders" component={OrderListPage} />
+        <Route path="/orders/:orderId" component={OrderDetailPage} />
+        <Route path="/resources/:resourceId" component={ResourceDetailPage} />
+        <Route path="/notifications" component={NotificationsPage} />
+        <Route path="/customers" component={CustomerListPage} />
+        <Route path="/inventory" component={InventoryListPage} />
+        <Route component={NotFound} />
+      </Switch>
+    </AppLayout>
   );
 }
 
 function App() {
   return (
-    React.createElement(QueryClientProvider, { client: queryClient}
-      , React.createElement(TooltipProvider, {}
-        , React.createElement(WouterRouter, { base: import.meta.env.BASE_URL.replace(/\/$/, "")}
-          , React.createElement(Router)
-        )
-        , React.createElement(Toaster)
-      )
-    )
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <Router />
+        </WouterRouter>
+        <Toaster />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 

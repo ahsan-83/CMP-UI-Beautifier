@@ -2,21 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // Types
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Mock Data
 const MOCK_STATS = {
   contracts: 1,
@@ -65,7 +50,7 @@ const MOCK_SERVICES = [
     status: "Pending",
     createdAt: "2023-10-20T16:20:00Z",
     applicant: "National Housing Authority",
-  }
+  },
 ];
 
 // Hooks
@@ -74,7 +59,7 @@ export function useDashboardStats() {
     queryKey: ["dashboard", "stats"],
     queryFn: async () => {
       // Simulate network latency
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
       return MOCK_STATS;
     },
   });
@@ -84,7 +69,7 @@ export function useServiceRequests() {
   return useQuery({
     queryKey: ["services", "list"],
     queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 800));
       return MOCK_SERVICES;
     },
   });
@@ -92,10 +77,10 @@ export function useServiceRequests() {
 
 export function useUpdateServiceStatus() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async ({ id, status }) => {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       return { id, status };
     },
     onSuccess: () => {
