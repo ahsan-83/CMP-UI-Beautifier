@@ -2,7 +2,7 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+pnpm workspace monorepo. Most packages use TypeScript; the `rajuk-dashboard` artifact uses plain JavaScript (React JS). Each package manages its own dependencies.
 
 ## Stack
 
@@ -49,6 +49,19 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
 
 ## Packages
+
+### `artifacts/rajuk-dashboard` (`@workspace/rajuk-dashboard`)
+
+RAJUK (Rajdhani Unnayan Kartipakkha) government portal — a multi-page React JS (plain JavaScript) web app. Converted from TypeScript to JavaScript (React JS) while preserving the original UI design.
+
+- **Stack**: React + Vite + Tailwind CSS + shadcn/ui
+- **Language**: Plain JavaScript (.jsx / .js) — no TypeScript
+- **Design**: Professional blue/white government portal aesthetic; sidebar navy `#1a2840`
+- **Pages**: Dashboard, Customers, Contract & Services (ContractsPage), Cloud Service (InventoryList / ResourceDetail), Request Based Service, My Wishlist, Order History (OrderList / OrderDetail), Inventory
+- **Data**: All hardcoded mock data — no real API calls
+- **Entry**: `src/main.jsx` → `src/App.jsx`
+- **Config**: `vite.config.js` (no tsconfig)
+- `pnpm --filter @workspace/rajuk-dashboard run dev` — dev server
 
 ### `artifacts/api-server` (`@workspace/api-server`)
 
