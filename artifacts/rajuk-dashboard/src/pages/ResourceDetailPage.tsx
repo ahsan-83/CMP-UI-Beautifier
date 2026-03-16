@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Link } from "wouter";
 import {
   ChevronRight, Package, FileText, Settings, History,
-  Activity, AlertTriangle, Plus, Upload, Trash2,
+  Activity, AlertTriangle, Plus, Upload, Trash2, ArrowRightLeft, Hash,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,123 @@ function EmailListDropZone({ file, onFile }: { file: File | null; onFile: (f: Fi
           </p>
       }
     </div>
+  );
+}
+
+/* ─── Attribute History Dialog ─────────────────────────── */
+
+const ATTR_HISTORY = [
+  {
+    orderNo: "20260302-NDC-00075-455",
+    attributes: [
+      { name: "Domain Quota Upgradation: Unlimited (per GB)", oldValue: 0,  newValue: 25 },
+      { name: "No of Email Accounts",                         oldValue: 20, newValue: 30 },
+      { name: "Domain Quota Upgradation: Unlimited (per GB)", oldValue: 25, newValue: 1  },
+      { name: "Delegated Admin Account Count",                oldValue: 0,  newValue: 0  },
+    ],
+  },
+  {
+    orderNo: "20260110-NDC-00075-312",
+    attributes: [
+      { name: "No of Email Accounts",          oldValue: 10, newValue: 20 },
+      { name: "Delegated Admin Account Count", oldValue: 0,  newValue: 2  },
+    ],
+  },
+];
+
+function AttributeHistoryDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl p-0 gap-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <DialogHeader className="px-8 pt-6 pb-5 border-b border-border/50 bg-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl border border-primary/10">
+              <ArrowRightLeft className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-foreground">Attribute Change History</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">Track all attribute modifications across orders</p>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {/* Table */}
+        <div className="bg-slate-50/60 max-h-[65vh] overflow-y-auto px-8 py-6">
+          <div className="bg-white rounded-xl border border-border/60 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-border/60">
+                    <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider w-52">
+                      <span className="flex items-center gap-1.5">
+                        <Hash className="w-3.5 h-3.5" /> Order No
+                      </span>
+                    </th>
+                    <th className="text-left px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5">
+                        <Settings className="w-3.5 h-3.5" /> Attribute Name
+                      </span>
+                    </th>
+                    <th className="text-center px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">Old Value</th>
+                    <th className="text-center px-5 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider w-28">New Value</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {ATTR_HISTORY.map((group) =>
+                    group.attributes.map((attr, attrIdx) => (
+                      <tr
+                        key={`${group.orderNo}-${attrIdx}`}
+                        className={`transition-colors hover:bg-slate-50/60 ${attrIdx % 2 === 0 ? "" : "bg-slate-50/20"}`}
+                      >
+                        {/* Order No — only shown on first row of group */}
+                        {attrIdx === 0 ? (
+                          <td
+                            rowSpan={group.attributes.length}
+                            className="px-5 py-4 align-middle border-r border-border/40"
+                          >
+                            <span className="inline-flex items-center px-2.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 font-mono text-xs font-bold leading-snug break-all">
+                              {group.orderNo}
+                            </span>
+                          </td>
+                        ) : null}
+
+                        {/* Attribute Name */}
+                        <td className="px-5 py-4 font-semibold text-foreground">{attr.name}</td>
+
+                        {/* Old Value */}
+                        <td className="px-5 py-4 text-center">
+                          <span className="inline-block min-w-[2rem] px-2.5 py-1 rounded-md bg-rose-50 border border-rose-100 text-rose-700 font-mono font-bold text-sm">
+                            {attr.oldValue}
+                          </span>
+                        </td>
+
+                        {/* New Value */}
+                        <td className="px-5 py-4 text-center">
+                          <span className="inline-block min-w-[2rem] px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-700 font-mono font-bold text-sm">
+                            {attr.newValue}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-4 border-t border-border/50 bg-white flex justify-end">
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-9 rounded-lg"
+          >
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -202,6 +319,7 @@ function ChangePackageDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
 export default function ResourceDetailPage() {
   const [changePackageOpen, setChangePackageOpen] = useState(false);
+  const [attrHistoryOpen, setAttrHistoryOpen] = useState(false);
 
   return (
     <AppLayout withSidebar>
@@ -307,7 +425,11 @@ export default function ResourceDetailPage() {
             <Card className="border-border shadow-sm">
               <div className="p-5 border-b bg-slate-50/50 flex justify-between items-center">
                 <h3 className="font-bold text-lg text-foreground">Attributes</h3>
-                <Button variant="outline" size="sm" className="text-primary border-primary/30 hover:bg-primary/5 bg-white">
+                <Button
+                  onClick={() => setAttrHistoryOpen(true)}
+                  variant="outline" size="sm"
+                  className="text-primary border-primary/30 hover:bg-primary/5 bg-white"
+                >
                   <History className="w-4 h-4 mr-2" /> History
                 </Button>
               </div>
@@ -448,6 +570,7 @@ export default function ResourceDetailPage() {
       </div>
 
       <ChangePackageDialog open={changePackageOpen} onOpenChange={setChangePackageOpen} />
+      <AttributeHistoryDialog open={attrHistoryOpen} onOpenChange={setAttrHistoryOpen} />
     </AppLayout>
   );
 }
