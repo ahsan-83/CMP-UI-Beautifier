@@ -1,10 +1,10 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Trash2, FileText, ChevronRight, Check, Upload, ShoppingCart } from "lucide-react";
+import { Trash2, FileText, ChevronRight, Check, Upload, ShoppingCart, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -41,6 +41,70 @@ function ApprovalDropZone({ file, onFile }: { file: File | null; onFile: (f: Fil
           </p>
       }
     </div>
+  );
+}
+
+/* ─── Email Pricing Dialog ────────────────────────────── */
+
+const EMAIL_PRICING_ROWS = [
+  { attribute: "No of Email Accounts", qty: 10, unitFee: 100, total: 1000 },
+];
+
+function EmailPricingDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const grandTotal = EMAIL_PRICING_ROWS.reduce((sum, r) => sum + r.total, 0);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-xl">
+        <DialogHeader className="bg-primary px-6 py-4">
+          <DialogTitle className="text-white text-lg font-bold">Email Service Pricing</DialogTitle>
+        </DialogHeader>
+
+        <div className="p-5 bg-white">
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-slate-50 text-xs text-slate-600 uppercase font-bold border-b border-slate-200">
+                <tr>
+                  <th className="px-4 py-3">Attribute</th>
+                  <th className="px-4 py-3 text-center">Quantity</th>
+                  <th className="px-4 py-3 text-center">Monthly Unit Fee</th>
+                  <th className="px-4 py-3 text-right">Total Fee</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {EMAIL_PRICING_ROWS.map((row, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50">
+                    <td className="px-4 py-3.5 font-medium text-slate-700">{row.attribute}</td>
+                    <td className="px-4 py-3.5 text-center">
+                      <span className="inline-block bg-slate-100 text-slate-700 font-bold text-xs px-2.5 py-1 rounded">
+                        {row.qty}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-center font-bold text-emerald-600">৳ {row.unitFee}</td>
+                    <td className="px-4 py-3.5 text-right font-bold text-primary">৳ {row.total.toLocaleString()}</td>
+                  </tr>
+                ))}
+                {/* Total Price row */}
+                <tr className="bg-slate-50/80">
+                  <td className="px-4 py-3.5 font-bold text-slate-800">Total Price</td>
+                  <td className="px-4 py-3.5 text-center text-slate-400 font-medium">-</td>
+                  <td className="px-4 py-3.5 text-center text-slate-400 font-medium">-</td>
+                  <td className="px-4 py-3.5 text-right font-bold text-primary text-base">৳ {grandTotal.toLocaleString()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <DialogFooter className="px-5 pb-5 bg-white flex justify-end">
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold px-6"
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -216,6 +280,7 @@ function CheckoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (
 
 export default function WishlistPage() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   return (
     <AppLayout withSidebar>
@@ -236,7 +301,67 @@ export default function WishlistPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left: Scrollable List */}
           <div className="flex-1 flex flex-col gap-4">
-            {[1, 2, 3].map((item) => (
+
+            {/* ── Email Service Item ── */}
+            <Card className="overflow-hidden border-border/80 shadow-sm hover:border-primary/30 transition-colors">
+              <div className="bg-slate-50/80 px-3 py-2.5 border-b flex flex-wrap items-center gap-2 justify-between">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Checkbox id="item-email" />
+                  <label htmlFor="item-email" className="font-bold text-sm text-foreground cursor-pointer">Item 1</label>
+                  <span className="font-bold text-sm text-slate-700">Email Service</span>
+                  <Badge variant="outline" className="bg-white text-slate-600 border-slate-300 text-[10px] font-semibold">Standard</Badge>
+                  <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border border-primary/20 text-xs font-bold">৳ 1000</Badge>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setPricingOpen(true)}
+                    className="h-7 px-3 text-xs font-semibold border-primary text-primary hover:bg-primary/5 bg-white gap-1.5"
+                  >
+                    <BarChart2 className="w-3.5 h-3.5" /> View Pricing
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                  Mar 15, 2026 03:19 PM
+                </div>
+              </div>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-muted-foreground bg-slate-50/50 uppercase">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold w-1/2">Feature</th>
+                        <th className="px-4 py-3 font-semibold text-center">Quantity</th>
+                        <th className="px-4 py-3 font-semibold text-right">Monthly Fee</th>
+                        <th className="px-4 py-3 font-semibold text-right">Total Fee</th>
+                        <th className="px-4 py-3 font-semibold text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/40">
+                      <tr className="hover:bg-slate-50/30">
+                        <td className="px-4 py-4 align-top">
+                          <p className="font-medium text-slate-700 leading-relaxed text-xs">
+                            Domain Name: a.bd &nbsp;No of Email Accounts: 10<br />
+                            Delegated Admin Account Count: 0<br />
+                            Domain Quota Upgradation: Unlimited (per GB): 0
+                          </p>
+                        </td>
+                        <td className="px-4 py-4 align-top text-center font-semibold">1</td>
+                        <td className="px-4 py-4 align-top text-right font-medium text-slate-500">N/A</td>
+                        <td className="px-4 py-4 align-top text-right font-bold text-primary">৳ 1000</td>
+                        <td className="px-4 py-4 align-top text-center">
+                          <Button size="sm" className="h-7 px-3 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold">
+                            Remove
+                          </Button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ── VPS Items ── */}
+            {[2, 3].map((item) => (
               <Card key={item} className="overflow-hidden border-border/80 shadow-sm hover:border-primary/30 transition-colors">
                 <div className="bg-slate-50/80 p-3 border-b flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -331,6 +456,7 @@ export default function WishlistPage() {
       </div>
 
       <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+      <EmailPricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
     </AppLayout>
   );
 }
