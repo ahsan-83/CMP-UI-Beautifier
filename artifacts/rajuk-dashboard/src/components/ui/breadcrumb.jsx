@@ -5,18 +5,10 @@ import { ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-const Breadcrumb = React.forwardRef
-
-
-
-
-(({ ...props }, ref) => React.createElement('nav', { ref: ref, 'aria-label': "breadcrumb", ...props} ))
+const Breadcrumb = React.forwardRef(({ ...props }, ref) => React.createElement('nav', { ref: ref, 'aria-label': "breadcrumb", ...props} ))
 Breadcrumb.displayName = "Breadcrumb"
 
-const BreadcrumbList = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('ol', {
     ref: ref,
     className: cn(
@@ -28,10 +20,7 @@ const BreadcrumbList = React.forwardRef
 ))
 BreadcrumbList.displayName = "BreadcrumbList"
 
-const BreadcrumbItem = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const BreadcrumbItem = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('li', {
     ref: ref,
     className: cn("inline-flex items-center gap-1.5", className),
@@ -40,12 +29,7 @@ const BreadcrumbItem = React.forwardRef
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
 
-const BreadcrumbLink = React.forwardRef
-
-
-
-
-(({ asChild, className, ...props }, ref) => {
+const BreadcrumbLink = React.forwardRef(({ asChild, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
 
   return (
@@ -58,10 +42,7 @@ const BreadcrumbLink = React.forwardRef
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
-const BreadcrumbPage = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('span', {
     ref: ref,
     role: "link",

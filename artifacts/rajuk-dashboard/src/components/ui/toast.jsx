@@ -7,10 +7,7 @@ import { cn } from "@/lib/utils"
 
 const ToastProvider = ToastPrimitives.Provider
 
-const ToastViewport = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const ToastViewport = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(ToastPrimitives.Viewport, {
     ref: ref,
     className: cn(
@@ -38,11 +35,7 @@ const toastVariants = cva(
   }
 )
 
-const Toast = React.forwardRef
-
-
-
-(({ className, variant, ...props }, ref) => {
+const Toast = React.forwardRef(({ className, variant, ...props }, ref) => {
   return (
     React.createElement(ToastPrimitives.Root, {
       ref: ref,
@@ -53,10 +46,7 @@ const Toast = React.forwardRef
 })
 Toast.displayName = ToastPrimitives.Root.displayName
 
-const ToastAction = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const ToastAction = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(ToastPrimitives.Action, {
     ref: ref,
     className: cn(
@@ -68,10 +58,7 @@ const ToastAction = React.forwardRef
 ))
 ToastAction.displayName = ToastPrimitives.Action.displayName
 
-const ToastClose = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const ToastClose = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(ToastPrimitives.Close, {
     ref: ref,
     className: cn(
@@ -86,10 +73,7 @@ const ToastClose = React.forwardRef
 ))
 ToastClose.displayName = ToastPrimitives.Close.displayName
 
-const ToastTitle = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const ToastTitle = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(ToastPrimitives.Title, {
     ref: ref,
     className: cn("text-sm font-semibold", className),
@@ -98,10 +82,7 @@ const ToastTitle = React.forwardRef
 ))
 ToastTitle.displayName = ToastPrimitives.Title.displayName
 
-const ToastDescription = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const ToastDescription = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(ToastPrimitives.Description, {
     ref: ref,
     className: cn("text-sm opacity-90", className),

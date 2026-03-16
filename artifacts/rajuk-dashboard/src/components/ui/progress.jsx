@@ -5,10 +5,7 @@ import * as ProgressPrimitive from "@radix-ui/react-progress"
 
 import { cn } from "@/lib/utils"
 
-const Progress = React.forwardRef
-
-
-(({ className, value, ...props }, ref) => (
+const Progress = React.forwardRef(({ className, value, ...props }, ref) => (
   React.createElement(ProgressPrimitive.Root, {
     ref: ref,
     className: cn(

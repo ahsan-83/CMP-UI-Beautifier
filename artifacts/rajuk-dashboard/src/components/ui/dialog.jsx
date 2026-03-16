@@ -12,10 +12,7 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
-const DialogOverlay = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(DialogPrimitive.Overlay, {
     ref: ref,
     className: cn(
@@ -27,10 +24,7 @@ const DialogOverlay = React.forwardRef
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-const DialogContent = React.forwardRef
-
-
-(({ className, children, ...props }, ref) => (
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => (
   React.createElement(DialogPortal, {}
     , React.createElement(DialogOverlay)
     , React.createElement(DialogPrimitive.Content, {
@@ -80,10 +74,7 @@ const DialogFooter = ({
 )
 DialogFooter.displayName = "DialogFooter"
 
-const DialogTitle = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const DialogTitle = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(DialogPrimitive.Title, {
     ref: ref,
     className: cn(
@@ -95,10 +86,7 @@ const DialogTitle = React.forwardRef
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
-const DialogDescription = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const DialogDescription = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement(DialogPrimitive.Description, {
     ref: ref,
     className: cn("text-sm text-muted-foreground", className),

@@ -2,10 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-const Table = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const Table = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('div', { className: "relative w-full overflow-auto"  }
     , React.createElement('table', {
       ref: ref,
@@ -16,18 +13,12 @@ const Table = React.forwardRef
 ))
 Table.displayName = "Table"
 
-const TableHeader = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableHeader = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('thead', { ref: ref, className: cn("[&_tr]:border-b", className), ...props} )
 ))
 TableHeader.displayName = "TableHeader"
 
-const TableBody = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableBody = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('tbody', {
     ref: ref,
     className: cn("[&_tr:last-child]:border-0", className),
@@ -36,10 +27,7 @@ const TableBody = React.forwardRef
 ))
 TableBody.displayName = "TableBody"
 
-const TableFooter = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableFooter = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('tfoot', {
     ref: ref,
     className: cn(
@@ -51,10 +39,7 @@ const TableFooter = React.forwardRef
 ))
 TableFooter.displayName = "TableFooter"
 
-const TableRow = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableRow = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('tr', {
     ref: ref,
     className: cn(
@@ -66,10 +51,7 @@ const TableRow = React.forwardRef
 ))
 TableRow.displayName = "TableRow"
 
-const TableHead = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('th', {
     ref: ref,
     className: cn(
@@ -81,10 +63,7 @@ const TableHead = React.forwardRef
 ))
 TableHead.displayName = "TableHead"
 
-const TableCell = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableCell = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('td', {
     ref: ref,
     className: cn(
@@ -96,10 +75,7 @@ const TableCell = React.forwardRef
 ))
 TableCell.displayName = "TableCell"
 
-const TableCaption = React.forwardRef
-
-
-(({ className, ...props }, ref) => (
+const TableCaption = React.forwardRef(({ className, ...props }, ref) => (
   React.createElement('caption', {
     ref: ref,
     className: cn("mt-4 text-sm text-muted-foreground", className),
