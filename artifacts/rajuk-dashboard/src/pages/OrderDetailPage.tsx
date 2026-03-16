@@ -7,8 +7,89 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { ORDERS } from "./OrderListPage";
+
+/* ─── View Attributes Dialog ─────────────────────────────── */
+
+const VPS_ATTRS = [
+  { key: "OS", value: "CentOS", children: [{ key: "OS Version", value: "8" }] },
+  { key: "Security Zone", value: "Database" },
+  { key: "Port", value: "22, 80, 443" },
+  { key: "Public IP Needed?", value: "No" },
+];
+
+function ViewAttributesDialog({
+  open, onOpenChange, pkg,
+}: { open: boolean; onOpenChange: (v: boolean) => void; pkg: string }) {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["OS"]));
+
+  const toggle = (key: string) =>
+    setExpanded(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden rounded-xl">
+        <DialogHeader className="px-6 pt-5 pb-3 border-b bg-white">
+          <DialogTitle className="text-xl font-bold text-foreground">Attributes</DialogTitle>
+          <Badge variant="outline" className="w-fit mt-1 bg-slate-50 text-slate-600 border-slate-200 font-medium">
+            {pkg}
+          </Badge>
+        </DialogHeader>
+
+        <div className="px-6 py-5 bg-white space-y-1">
+          {VPS_ATTRS.map((attr) => (
+            <div key={attr.key}>
+              {/* Main attribute row */}
+              <div
+                className={`flex items-center gap-2 py-2.5 rounded-lg px-2 transition-colors ${
+                  attr.children ? "cursor-pointer hover:bg-slate-50" : ""
+                }`}
+                onClick={() => attr.children && toggle(attr.key)}
+              >
+                {attr.children ? (
+                  <ChevronDown
+                    className={`w-4 h-4 text-primary shrink-0 transition-transform ${
+                      expanded.has(attr.key) ? "" : "-rotate-90"
+                    }`}
+                  />
+                ) : (
+                  <div className="w-4 shrink-0" />
+                )}
+                <span className="font-semibold text-slate-700 text-sm w-36 shrink-0">{attr.key}</span>
+                <span className="text-slate-600 text-sm">{attr.value}</span>
+              </div>
+
+              {/* Children rows */}
+              {attr.children && expanded.has(attr.key) &&
+                attr.children.map((child) => (
+                  <div key={child.key} className="flex items-center gap-2 py-2 px-2 pl-8 rounded-lg hover:bg-slate-50/50">
+                    <div className="w-4 shrink-0" />
+                    <span className="font-medium text-slate-600 text-sm w-36 shrink-0">{child.key}</span>
+                    <span className="text-slate-600 text-sm">{child.value}</span>
+                  </div>
+                ))}
+            </div>
+          ))}
+        </div>
+
+        <div className="px-6 pb-5 flex justify-end bg-white">
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold px-8"
+          >
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 /* ─── Mock data ─────────────────────────────────────────── */
 
@@ -113,7 +194,7 @@ function OrderTracker({ steps }: { steps: number }) {
 
 /* ─── Expandable VPS row ────────────────────────────────── */
 
-function CompletedMainRow({ row }: { row: CompletedRow & { type: "main" } }) {
+function CompletedMainRow({ row, onViewAttributes }: { row: CompletedRow & { type: "main" }; onViewAttributes: (pkg: string) => void }) {
   const [expanded, setExpanded] = useState(true);
   const hasChildren = row.children && row.children.length > 0;
 
@@ -143,7 +224,11 @@ function CompletedMainRow({ row }: { row: CompletedRow & { type: "main" } }) {
           <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded">{row.platform}</span>
         </td>
         <td className="px-4 py-3.5 text-center">
-          <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2.5 font-semibold gap-1">
+          <Button
+            size="sm"
+            onClick={() => onViewAttributes(row.pkg)}
+            className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2.5 font-semibold gap-1"
+          >
             <Eye className="w-3.5 h-3.5" /> View Attributes
           </Button>
         </td>
@@ -179,7 +264,11 @@ function CompletedMainRow({ row }: { row: CompletedRow & { type: "main" } }) {
           <td className="px-4 py-3 text-center font-bold text-sm">{child.qty}</td>
           <td className="px-4 py-3 text-center text-xs text-slate-400">{child.platform}</td>
           <td className="px-4 py-3 text-center">
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2.5 font-semibold gap-1">
+            <Button
+              size="sm"
+              onClick={() => onViewAttributes(child.pkg)}
+              className="bg-primary hover:bg-primary/90 text-white text-xs h-7 px-2.5 font-semibold gap-1"
+            >
               <Eye className="w-3.5 h-3.5" /> View Attributes
             </Button>
           </td>
@@ -199,6 +288,10 @@ export default function OrderDetailPage() {
 
   const isChangePackage = order.type === "Change Package";
   const isCompleted = order.status === "DELIVERED";
+  const [attrOpen, setAttrOpen] = useState(false);
+  const [attrPkg, setAttrPkg] = useState("Basic");
+
+  const openAttr = (pkg: string) => { setAttrPkg(pkg); setAttrOpen(true); };
 
   const totalCost = isCompleted ? "৳ 17100" : isChangePackage ? "৳ 0" : "৳ 25000";
   const trackingSteps = isCompleted ? 3 : 1;
@@ -413,7 +506,11 @@ export default function OrderDetailPage() {
                         <td className="px-5 py-4 font-bold text-emerald-600 whitespace-nowrap">{row.fee}</td>
                         <td className="px-5 py-4 text-center font-bold text-lg">{row.qty}</td>
                         <td className="px-5 py-4 text-center">
-                          <Button size="sm" className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 font-semibold gap-1">
+                          <Button
+                            size="sm"
+                            onClick={() => openAttr(row.pkg)}
+                            className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 font-semibold gap-1"
+                          >
                             <Eye className="w-3.5 h-3.5" /> View Attributes
                           </Button>
                         </td>
@@ -448,7 +545,7 @@ export default function OrderDetailPage() {
                   <tbody className="divide-y divide-border/60">
                     {COMPLETED_REQUEST_ROWS.map((row, i) =>
                       row.type === "main" ? (
-                        <CompletedMainRow key={i} row={row} />
+                        <CompletedMainRow key={i} row={row} onViewAttributes={openAttr} />
                       ) : null
                     )}
                   </tbody>
@@ -460,6 +557,8 @@ export default function OrderDetailPage() {
         </div>
 
       </div>
+
+      <ViewAttributesDialog open={attrOpen} onOpenChange={setAttrOpen} pkg={attrPkg} />
     </AppLayout>
   );
 }
