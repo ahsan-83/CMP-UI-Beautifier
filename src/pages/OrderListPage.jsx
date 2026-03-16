@@ -1,9 +1,9 @@
 import React from "react";
 import { useLocation } from "wouter";
 import { Search, ChevronLeft, ChevronRight, X, ClipboardList } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import { useState } from "react";
 export const ORDERS = [
   {

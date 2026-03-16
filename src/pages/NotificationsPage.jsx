@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import { Megaphone, ChevronLeft, ChevronRight } from "lucide-react";
-import { NOTIFICATIONS, TOTAL_NOTIFICATIONS } from "@/data/notifications";
-import { cn } from "@/lib/utils";
+import { NOTIFICATIONS, TOTAL_NOTIFICATIONS } from "../data/notifications";
+import { cn } from "../lib/utils";
 const PAGE_SIZE = 10;
 const TOTAL_PAGES = Math.ceil(TOTAL_NOTIFICATIONS / PAGE_SIZE);
 function timeAgo(hours) {

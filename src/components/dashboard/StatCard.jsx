@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 export function StatCard({ title, value, icon, colorClass, iconBgClass, delay = 0, trend }) {
   return (
     <motion.div

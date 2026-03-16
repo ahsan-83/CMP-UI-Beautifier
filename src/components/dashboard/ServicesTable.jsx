@@ -32,9 +32,9 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { useServiceRequests, useUpdateServiceStatus } from "@/hooks/use-dashboard";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { useServiceRequests, useUpdateServiceStatus } from "../../hooks/use-dashboard";
+import { useToast } from "../../hooks/use-toast";
+import { cn } from "../../lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +42,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 const StatusBadge = ({ status }) => {
   const configs = {
     Pending: {

@@ -1,8 +1,8 @@
 import React from "react";
-import { TopNav } from "@/components/layout/TopNav";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { TopNav } from "./TopNav";
+import { Sidebar } from "./Sidebar";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 export function AppLayout({ children, withSidebar = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);

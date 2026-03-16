@@ -1,21 +1,21 @@
 import React from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppLayout } from "@/components/layout/AppLayout";
-import Dashboard from "@/pages/Dashboard";
-import ContractsPage from "@/pages/ContractsPage";
-import ServiceDetailPage from "@/pages/ServiceDetailPage";
-import RequestServicesPage from "@/pages/RequestServicesPage";
-import WishlistPage from "@/pages/WishlistPage";
-import OrderListPage from "@/pages/OrderListPage";
-import OrderDetailPage from "@/pages/OrderDetailPage";
-import ResourceDetailPage from "@/pages/ResourceDetailPage";
-import NotificationsPage from "@/pages/NotificationsPage";
-import CustomerListPage from "@/pages/CustomerListPage";
-import InventoryListPage from "@/pages/InventoryListPage";
-import NotFound from "@/pages/not-found";
+import { Toaster } from "./components/ui/toaster";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { AppLayout } from "./components/layout/AppLayout";
+import Dashboard from "./pages/Dashboard";
+import ContractsPage from "./pages/ContractsPage";
+import ServiceDetailPage from "./pages/ServiceDetailPage";
+import RequestServicesPage from "./pages/RequestServicesPage";
+import WishlistPage from "./pages/WishlistPage";
+import OrderListPage from "./pages/OrderListPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
+import ResourceDetailPage from "./pages/ResourceDetailPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import CustomerListPage from "./pages/CustomerListPage";
+import InventoryListPage from "./pages/InventoryListPage";
+import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
   defaultOptions: {

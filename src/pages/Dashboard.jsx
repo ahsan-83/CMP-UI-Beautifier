@@ -22,11 +22,11 @@ function _optionalChain(ops) {
 import React from "react";
 import { motion } from "framer-motion";
 import { FileText, HeadphonesIcon, PlayCircle, Mailbox } from "lucide-react";
-import { useDashboardStats } from "@/hooks/use-dashboard";
-import { OrganizationCard } from "@/components/dashboard/OrganizationCard";
-import { StatCard } from "@/components/dashboard/StatCard";
-import { ServicesTable } from "@/components/dashboard/ServicesTable";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useDashboardStats } from "../hooks/use-dashboard";
+import { OrganizationCard } from "../components/dashboard/OrganizationCard";
+import { StatCard } from "../components/dashboard/StatCard";
+import { ServicesTable } from "../components/dashboard/ServicesTable";
+import { Skeleton } from "../components/ui/skeleton";
 export default function Dashboard() {
   const { data: stats, isLoading } = useDashboardStats();
   return (

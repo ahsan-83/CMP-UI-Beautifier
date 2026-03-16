@@ -16,8 +16,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { useToast } from "../../hooks/use-toast";
+import { cn } from "../../lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,15 +25,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import bccLogo from "@assets/bcc1_1773630819853.png";
-import ictLogo from "@assets/ictd_1773630825193.png";
-import ndcLogo from "@assets/ndc-logo-colored_1773630831365.jpg";
-import { NOTIFICATIONS, UNREAD_COUNT } from "@/data/notifications";
+} from "../ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import bccLogo from "../../../attached_assets/bcc1_1773630819853.png";
+import ictLogo from "../../../attached_assets/ictd_1773630825193.png";
+import ndcLogo from "../../../attached_assets/ndc-logo-colored_1773630831365.jpg";
+import { NOTIFICATIONS, UNREAD_COUNT } from "../../data/notifications";
 
 /*  ── Change Password Dialog ────────────────────────────── */
 function PasswordField({ id, label, value, onChange, show, onToggle, placeholder = "Password" }) {

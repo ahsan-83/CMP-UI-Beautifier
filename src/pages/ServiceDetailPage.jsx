@@ -1,10 +1,10 @@
 import React from "react";
 import { Link, useParams } from "wouter";
 import { ChevronRight, Cloud, Eye, Pencil, Server, Mail, ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Card, CardContent } from "../components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../components/ui/collapsible";
 import { useState } from "react";
 const PACKAGES = [
   {
