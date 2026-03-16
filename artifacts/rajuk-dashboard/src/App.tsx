@@ -10,6 +10,7 @@ import WishlistPage from "@/pages/WishlistPage";
 import OrderListPage from "@/pages/OrderListPage";
 import OrderDetailPage from "@/pages/OrderDetailPage";
 import ResourceDetailPage from "@/pages/ResourceDetailPage";
+import NotificationsPage from "@/pages/NotificationsPage";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/orders" component={OrderListPage} />
       <Route path="/orders/:orderId" component={OrderDetailPage} />
       <Route path="/resources/:resourceId" component={ResourceDetailPage} />
+      <Route path="/notifications" component={NotificationsPage} />
       <Route component={NotFound} />
     </Switch>
   );
