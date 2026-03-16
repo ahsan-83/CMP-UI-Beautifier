@@ -1,13 +1,151 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { OrganizationCard } from "@/components/dashboard/OrganizationCard";
 import { Link } from "wouter";
-import { FileText, Cloud, Mail, AlertTriangle, Edit2, Plus, ExternalLink, ChevronRight } from "lucide-react";
+import { FileText, Cloud, Mail, AlertTriangle, Edit2, Plus, ExternalLink, ChevronRight, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+
+/* ── Mock users for dropdowns ───────────────────────────── */
+const USERS = [
+  { value: "u1", label: "Lutfor Rahman" },
+  { value: "u2", label: "Programmer Raj" },
+  { value: "u3", label: "Sadia Islam" },
+  { value: "u4", label: "Mahbub Alam" },
+  { value: "u5", label: "Nusrat Jahan" },
+];
+
+/* ── Select field ───────────────────────────────────────── */
+function UserSelect({
+  id, value, onChange, required,
+}: { id: string; value: string; onChange: (v: string) => void; required?: boolean }) {
+  return (
+    <select
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+      className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 pr-9 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all appearance-none cursor-pointer"
+      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
+    >
+      <option value="">Select a user</option>
+      {USERS.map((u) => (
+        <option key={u.value} value={u.value}>{u.label}</option>
+      ))}
+    </select>
+  );
+}
+
+/* ── Add New Service Dialog ─────────────────────────────── */
+function NewServiceDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { toast } = useToast();
+  const [form, setForm] = useState({
+    name: "",
+    billingPrimary: "",
+    technicalPrimary: "",
+    billingSecondary: "",
+    technicalSecondary: "",
+  });
+
+  const set = (key: keyof typeof form) => (val: string) =>
+    setForm((prev) => ({ ...prev, [key]: val }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.billingPrimary || !form.technicalPrimary) return;
+    toast({ title: "Service Requested", description: `"${form.name}" has been submitted for approval.` });
+    onOpenChange(false);
+    setForm({ name: "", billingPrimary: "", technicalPrimary: "", billingSecondary: "", technicalSecondary: "" });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <DialogHeader className="px-7 pt-6 pb-5 border-b border-border/50 bg-white">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl">
+              <Server className="w-5 h-5 text-primary" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-foreground">Add a New Service</DialogTitle>
+          </div>
+        </DialogHeader>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-slate-50/60">
+          <div className="px-7 py-6 space-y-5">
+
+            {/* Service Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="svc-name" className="text-sm font-semibold text-foreground">
+                Service Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="svc-name"
+                value={form.name}
+                onChange={(e) => set("name")(e.target.value)}
+                placeholder="e.g. (Mail Service)"
+                required
+                className="h-10 border-slate-200 focus-visible:ring-primary/30 bg-white text-sm"
+              />
+            </div>
+
+            {/* Billing User Primary */}
+            <div className="space-y-1.5">
+              <Label htmlFor="billing-primary" className="text-sm font-semibold text-foreground">
+                Billing User (Primary) <span className="text-red-500">*</span>
+              </Label>
+              <UserSelect id="billing-primary" value={form.billingPrimary} onChange={set("billingPrimary")} required />
+            </div>
+
+            {/* Technical User Primary */}
+            <div className="space-y-1.5">
+              <Label htmlFor="tech-primary" className="text-sm font-semibold text-foreground">
+                Technical User (Primary) <span className="text-red-500">*</span>
+              </Label>
+              <UserSelect id="tech-primary" value={form.technicalPrimary} onChange={set("technicalPrimary")} required />
+            </div>
+
+            {/* Billing User Secondary */}
+            <div className="space-y-1.5">
+              <Label htmlFor="billing-secondary" className="text-sm font-semibold text-slate-600">
+                Billing User (Secondary)
+              </Label>
+              <UserSelect id="billing-secondary" value={form.billingSecondary} onChange={set("billingSecondary")} />
+            </div>
+
+            {/* Technical User Secondary */}
+            <div className="space-y-1.5">
+              <Label htmlFor="tech-secondary" className="text-sm font-semibold text-slate-600">
+                Technical User (Secondary)
+              </Label>
+              <UserSelect id="tech-secondary" value={form.technicalSecondary} onChange={set("technicalSecondary")} />
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-7 py-4 flex justify-end border-t border-border/50 bg-white">
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-9 rounded-lg shadow-sm"
+            >
+              Submit
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function ContractsPage() {
+  const [newServiceOpen, setNewServiceOpen] = useState(false);
+
   return (
     <AppLayout withSidebar>
       <div className="flex flex-col gap-6">
@@ -61,7 +199,10 @@ export default function ContractsPage() {
                   <TabsTrigger value="services">Service List</TabsTrigger>
                   <TabsTrigger value="agreements">Agreements</TabsTrigger>
                 </TabsList>
-                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button
+                  onClick={() => setNewServiceOpen(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
                   <Plus className="w-4 h-4 mr-2" /> Request New Service
                 </Button>
               </div>
@@ -279,6 +420,8 @@ export default function ContractsPage() {
           </div>
         </div>
       </div>
+
+      <NewServiceDialog open={newServiceOpen} onOpenChange={setNewServiceOpen} />
     </AppLayout>
   );
 }
