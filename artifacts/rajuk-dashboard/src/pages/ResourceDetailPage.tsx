@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import {
   ChevronRight, Package, FileText, Settings, History,
   Activity, AlertTriangle, Plus, Upload, Trash2, ArrowRightLeft, Hash,
+  ChevronDown, Zap, Calendar, Clock, CheckCircle2, Server,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -315,11 +316,74 @@ function ChangePackageDialog({ open, onOpenChange }: { open: boolean; onOpenChan
   );
 }
 
+/* ─── VPS Attributes Tree ───────────────────────────────── */
+
+const VPS_ATTR_TREE = [
+  { key: "OS", value: "Ubuntu", children: [{ key: "OS Version", value: "22.04" }] },
+  { key: "Security Zone", value: "NMS" },
+  { key: "Port", value: "22, 80, 443" },
+  { key: "Public IP Needed?", value: "Yes" },
+  { key: "Partition to maximize", value: "" },
+  { key: "VPN Account Name", value: "" },
+];
+
+function VpsAttributeTree() {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["OS"]));
+  const toggle = (key: string) =>
+    setExpanded(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+
+  return (
+    <div className="space-y-0.5">
+      {VPS_ATTR_TREE.map((attr) => (
+        <div key={attr.key}>
+          <div
+            className={`flex items-center gap-2 py-2.5 px-2 rounded-lg transition-colors ${attr.children ? "cursor-pointer hover:bg-slate-50" : ""}`}
+            onClick={() => attr.children && toggle(attr.key)}
+          >
+            {attr.children ? (
+              <ChevronDown className={`w-4 h-4 text-primary shrink-0 transition-transform ${expanded.has(attr.key) ? "" : "-rotate-90"}`} />
+            ) : (
+              <div className="w-4 shrink-0" />
+            )}
+            <span className="font-semibold text-slate-700 text-sm w-44 shrink-0">{attr.key}</span>
+            {attr.value && <span className="text-slate-600 text-sm">{attr.value}</span>}
+          </div>
+          {attr.children && expanded.has(attr.key) && attr.children.map((child) => (
+            <div key={child.key} className="flex items-center gap-2 py-2 px-2 pl-9 rounded-lg hover:bg-slate-50/50">
+              <div className="w-4 shrink-0" />
+              <span className="font-medium text-slate-600 text-sm w-44 shrink-0">{child.key}</span>
+              <span className="text-slate-600 text-sm">{child.value}</span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default function ResourceDetailPage() {
   const [changePackageOpen, setChangePackageOpen] = useState(false);
   const [attrHistoryOpen, setAttrHistoryOpen] = useState(false);
+
+  // VPS Action section state
+  const [privateIP, setPrivateIP] = useState("");
+  const [vmName, setVmName] = useState("");
+  const [publicIP, setPublicIP] = useState("");
+  const [actDate, setActDate] = useState(new Date().toISOString().split("T")[0]);
+  const [actTime, setActTime] = useState("00:00");
+  const [vpsActivated, setVpsActivated] = useState(false);
+  const { toast } = useToast();
+
+  const handleVpsActivate = () => {
+    setVpsActivated(true);
+    toast({ title: "VPS Activated", description: `Resource activated on ${actDate} at ${actTime}.` });
+  };
 
   return (
     <AppLayout withSidebar>
@@ -329,12 +393,12 @@ export default function ResourceDetailPage() {
         <div className="flex items-center text-sm font-medium text-muted-foreground gap-2">
           <Link href="/orders" className="hover:text-primary transition-colors">Order List</Link>
           <ChevronRight className="w-4 h-4" />
-          <Link href="/orders/20260312-NDC-00075-506" className="hover:text-primary transition-colors">Order Details</Link>
+          <Link href="/orders/20260225-NDC-00075-438" className="hover:text-primary transition-colors">Order Details</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground">Resource Details</span>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">Email Service (Standard)</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">Virtual Private Server (VPS) Service (Advanced)</h1>
 
         <Tabs defaultValue="info" className="w-full">
           <TabsList className="bg-white border shadow-sm p-1 rounded-xl mb-6">
@@ -352,14 +416,14 @@ export default function ResourceDetailPage() {
                     <Package className="w-4 h-4" /> Package Details
                   </h3>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-blue-700">Package:</span><span className="font-bold text-blue-950">Standard</span></div>
-                    <div className="flex justify-between"><span className="text-blue-700">Category:</span><span className="font-medium">Email Service</span></div>
-                    <div className="flex justify-between"><span className="text-blue-700">Feature:</span><span className="font-medium text-slate-500">N/A</span></div>
-                    <div className="flex justify-between"><span className="text-blue-700">Platform Type:</span><span className="font-bold text-blue-950">ZIMBRA</span></div>
-                    <div className="flex justify-between"><span className="text-blue-700">Monthly Fee:</span><span className="font-medium text-slate-500">N/A</span></div>
+                    <div className="flex justify-between"><span className="text-blue-700">Package:</span><span className="font-bold text-blue-950">Advanced</span></div>
+                    <div className="flex justify-between"><span className="text-blue-700">Category:</span><span className="font-medium">Virtual Private Server (VPS) Service</span></div>
+                    <div className="flex justify-between"><span className="text-blue-700">Feature:</span><span className="font-medium text-xs">4 vCPU, 12 GB RAM, 300 GB Storage</span></div>
+                    <div className="flex justify-between"><span className="text-blue-700">Platform Type:</span><span className="font-bold text-blue-950">NUTANIX</span></div>
+                    <div className="flex justify-between"><span className="text-blue-700">Monthly Fee:</span><span className="font-bold text-blue-950">15000</span></div>
                     <div className="flex justify-between items-center pt-2 mt-2 border-t border-blue-200/50">
                       <span className="text-blue-700 font-medium">Status:</span>
-                      <Badge className="bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm border-none">ACTIVATED</Badge>
+                      <Badge className="bg-amber-50 text-amber-700 border border-amber-300 hover:bg-amber-50 shadow-sm text-xs font-bold">ACCEPTED</Badge>
                     </div>
                   </div>
                 </CardContent>
@@ -373,7 +437,7 @@ export default function ResourceDetailPage() {
                   <div className="space-y-3 text-sm">
                     <div>
                       <span className="text-emerald-700 block mb-1">Order No:</span>
-                      <span className="font-mono font-bold text-emerald-950">20260312-NDC-00075-506</span>
+                      <span className="font-mono font-bold text-emerald-950 text-xs">20260225-NDC-00075-438</span>
                     </div>
                     <div>
                       <span className="text-emerald-700 block mb-1">Contract:</span>
@@ -389,9 +453,9 @@ export default function ResourceDetailPage() {
                     <Settings className="w-4 h-4" /> Service Details
                   </h3>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-cyan-700">Name:</span><span className="font-bold text-cyan-950">Mail</span></div>
-                    <div className="flex justify-between"><span className="text-cyan-700">Service ID:</span><span className="font-mono font-medium">SID-00324</span></div>
-                    <div className="flex justify-between"><span className="text-cyan-700">URL:</span><a href="https://rajuk.gov.bd" className="text-primary hover:underline">https://rajuk.gov.bd</a></div>
+                    <div className="flex justify-between"><span className="text-cyan-700">Name:</span><span className="font-bold text-cyan-950">Cloud</span></div>
+                    <div className="flex justify-between"><span className="text-cyan-700">Service ID:</span><span className="font-mono font-medium">SID-00075</span></div>
+                    <div className="flex justify-between"><span className="text-cyan-700">URL:</span><a href="https://rajuk.gov.bd" className="text-primary hover:underline text-xs">https://rajuk.gov.bd</a></div>
                     <div className="flex justify-between"><span className="text-cyan-700">Start Date:</span><span className="font-medium">2023-05-18</span></div>
                     <div className="flex justify-between"><span className="text-cyan-700">End Date:</span><span className="font-medium">2040-12-31</span></div>
                   </div>
@@ -404,15 +468,15 @@ export default function ResourceDetailPage() {
                     <Activity className="w-4 h-4" /> Service Status
                   </h3>
                   <div className="space-y-4">
-                    <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 w-full justify-center py-1.5 text-sm">ACTIVATED</Badge>
+                    <Badge className="bg-amber-50 text-amber-700 border border-amber-300 w-full justify-center py-1.5 text-sm font-bold">ACCEPTED</Badge>
                     <div className="space-y-2 text-sm">
                       <div>
                         <span className="text-amber-700 block mb-0.5 text-xs">Request Date:</span>
-                        <span className="font-medium text-amber-950">Mar 12, 2026 12:22 PM</span>
+                        <span className="font-medium text-amber-950">Feb 25, 2026 03:28 PM</span>
                       </div>
                       <div>
                         <span className="text-amber-700 block mb-0.5 text-xs">Activation Date:</span>
-                        <span className="font-medium text-amber-950">Mar 12, 2026 12:43 PM</span>
+                        <span className="font-medium text-slate-400">N/A</span>
                       </div>
                     </div>
                   </div>
@@ -421,57 +485,120 @@ export default function ResourceDetailPage() {
 
             </div>
 
-            {/* Attributes Section */}
-            <Card className="border-border shadow-sm">
-              <div className="p-5 border-b bg-slate-50/50 flex justify-between items-center">
-                <h3 className="font-bold text-lg text-foreground">Attributes</h3>
-                <Button
-                  onClick={() => setAttrHistoryOpen(true)}
-                  variant="outline" size="sm"
-                  className="text-primary border-primary/30 hover:bg-primary/5 bg-white"
-                >
-                  <History className="w-4 h-4 mr-2" /> History
-                </Button>
-              </div>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
-                  <div className="space-y-1 border-b pb-4 md:border-b-0 md:pb-0">
-                    <p className="text-sm font-medium text-muted-foreground">Domain Name</p>
-                    <p className="font-bold text-foreground text-lg">a.gov.bd</p>
+            {/* Attributes + Action side-by-side */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
+
+              {/* ── Attributes (left, 2/5) ── */}
+              <Card className="border-border shadow-sm lg:col-span-2">
+                <div className="p-5 border-b bg-slate-50/50 flex justify-between items-center">
+                  <h3 className="font-bold text-lg text-foreground">Attributes</h3>
+                  <Button
+                    onClick={() => setAttrHistoryOpen(true)}
+                    variant="outline" size="sm"
+                    className="text-primary border-primary/30 hover:bg-primary/5 bg-white"
+                  >
+                    <History className="w-4 h-4 mr-2" /> History
+                  </Button>
+                </div>
+                <CardContent className="p-5">
+                  <VpsAttributeTree />
+                </CardContent>
+              </Card>
+
+              {/* ── Action (right, 3/5) ── */}
+              <Card className="border-border shadow-sm lg:col-span-3 overflow-hidden">
+                {/* Header */}
+                <div className="px-5 py-4 bg-primary flex items-center gap-2.5">
+                  <div className="p-1.5 bg-white/20 rounded-lg">
+                    <Server className="w-4 h-4 text-white" />
                   </div>
-                  <div className="space-y-1 border-b pb-4 md:border-b-0 md:pb-0">
-                    <p className="text-sm font-medium text-muted-foreground">No of Email Accounts</p>
-                    <p className="font-bold text-foreground text-lg">15</p>
-                  </div>
-                  <div className="space-y-1 border-b pb-4 md:border-b-0 md:pb-0">
-                    <p className="text-sm font-medium text-muted-foreground">Delegated Admin Account Count</p>
-                    <p className="font-bold text-foreground text-lg">2</p>
-                  </div>
-                  <div className="space-y-1 border-b pb-4 md:border-b-0 md:pb-0">
-                    <p className="text-sm font-medium text-muted-foreground">Admin Privileged Emails</p>
-                    <a href="mailto:admin@a.gov.bd,support@a.gov.bd" className="font-bold text-primary hover:underline text-lg block truncate">
-                      admin@a.gov.bd, support@a.gov.bd
-                    </a>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Domain Quota Upgradation</p>
-                    <p className="font-bold text-foreground text-lg">Unlimited (per GB): <span className="text-primary">25</span></p>
-                  </div>
+                  <h3 className="font-bold text-white text-base">Action</h3>
                 </div>
 
-                <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-end gap-4">
-                  <Button
-                    onClick={() => setChangePackageOpen(true)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 px-8 rounded-xl"
-                  >
-                    Change Package
-                  </Button>
-                  <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-11 px-8 rounded-xl bg-white">
-                    Deactivate Package
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6 space-y-4">
+                  {/* Private IP */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-semibold text-slate-700">Private IP</Label>
+                    <Input
+                      placeholder="e.g. 192.168.10.5"
+                      value={privateIP}
+                      onChange={e => setPrivateIP(e.target.value)}
+                      disabled={vpsActivated}
+                      className="bg-white border-slate-200 focus-visible:ring-primary/30 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* VM Name */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-semibold text-slate-700">VM Name</Label>
+                    <Input
+                      placeholder="e.g. vm-rajuk-prod-01"
+                      value={vmName}
+                      onChange={e => setVmName(e.target.value)}
+                      disabled={vpsActivated}
+                      className="bg-white border-slate-200 focus-visible:ring-primary/30 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Public IP */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm font-semibold text-slate-700">Public IP</Label>
+                    <Input
+                      placeholder="e.g. 103.28.121.44"
+                      value={publicIP}
+                      onChange={e => setPublicIP(e.target.value)}
+                      disabled={vpsActivated}
+                      className="bg-white border-slate-200 focus-visible:ring-primary/30 disabled:opacity-60"
+                    />
+                  </div>
+
+                  {/* Activation Date */}
+                  <div className="space-y-2 pt-1">
+                    <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-primary" /> Activation Date
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="date"
+                        value={actDate}
+                        onChange={e => setActDate(e.target.value)}
+                        disabled={vpsActivated}
+                        className="bg-white border-slate-200 focus-visible:ring-primary/30 disabled:opacity-60 w-44"
+                      />
+                      <div className="relative">
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                        <Input
+                          type="time"
+                          value={actTime}
+                          onChange={e => setActTime(e.target.value)}
+                          disabled={vpsActivated}
+                          className="bg-white border-slate-200 focus-visible:ring-primary/30 pl-8 disabled:opacity-60 w-36"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Activate / Activated button */}
+                  <div className="pt-2">
+                    {vpsActivated ? (
+                      <div className="flex items-center justify-center gap-2.5 w-full py-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        <span className="font-bold text-emerald-700 text-sm">Resource Activated Successfully</span>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleVpsActivate}
+                        disabled={!actDate}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 rounded-lg shadow-sm gap-2"
+                      >
+                        <Zap className="w-4 h-4" /> Activate
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+            </div>
           </TabsContent>
 
           <TabsContent value="attached" className="space-y-8 m-0 animate-in fade-in-50">
