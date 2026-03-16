@@ -1,109 +1,89 @@
-# Workspace
+# RAJUK Dashboard
 
 ## Overview
 
-pnpm workspace monorepo. Most packages use TypeScript; the `rajuk-dashboard` artifact uses plain JavaScript (React JS). Each package manages its own dependencies.
+RAJUK (Rajdhani Unnayan Kartipakkha) government portal — a React JS single-page application for Bangladesh urban development authority. Built with React + Vite + Tailwind CSS + shadcn/ui.
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
+- **Language**: Plain JavaScript (React JS) — `.jsx` / `.js` files, no TypeScript
+- **Framework**: React 19 + Vite 7
+- **Styling**: Tailwind CSS v4 + shadcn/ui (New York style)
+- **Routing**: Wouter
+- **State**: TanStack Query (data fetching), React hooks
 - **Package manager**: pnpm
-- **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Design**: Professional blue/white government portal; sidebar navy `#1a2840`
 
-## Structure
+## Project Structure
 
-```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
-│   ├── api-spec/           # OpenAPI spec + Orval codegen config
-│   ├── api-client-react/   # Generated React Query hooks
-│   ├── api-zod/            # Generated Zod schemas from OpenAPI
-│   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+```
+rajuk-dashboard/
+├── src/
+│   ├── App.jsx                    # Root component, all routes
+│   ├── main.jsx                   # Entry point
+│   ├── index.css                  # Global styles + Tailwind theme
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── AppLayout.jsx      # Page wrapper
+│   │   │   ├── Sidebar.jsx        # Navigation sidebar
+│   │   │   └── TopNav.jsx         # Top navigation bar
+│   │   ├── dashboard/             # Dashboard-specific components
+│   │   └── ui/                    # shadcn/ui components
+│   ├── pages/
+│   │   ├── Dashboard.jsx
+│   │   ├── ContractsPage.jsx      # Contract & Services (5 contracts, scrollable list)
+│   │   ├── CustomerListPage.jsx
+│   │   ├── InventoryListPage.jsx  # Cloud Service inventory
+│   │   ├── ResourceDetailPage.jsx # VPS resource detail (SID-00075)
+│   │   ├── OrderListPage.jsx
+│   │   ├── OrderDetailPage.jsx    # Change Package activation bar
+│   │   ├── RequestServicesPage.jsx
+│   │   ├── ServiceDetailPage.jsx
+│   │   ├── WishlistPage.jsx
+│   │   └── NotificationsPage.jsx
+│   ├── hooks/                     # Custom React hooks
+│   ├── data/                      # Hardcoded mock data
+│   └── lib/                       # Utilities (cn, etc.)
+├── public/
+│   ├── favicon.svg
+│   ├── opengraph.jpg
+│   └── images/                    # Logo assets (BCC, ICTD, NDC)
+├── index.html
+├── package.json
+├── vite.config.js
+└── components.json                # shadcn/ui config
 ```
 
-## TypeScript & Composite Projects
+## Dev Server
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+```bash
+pnpm run dev       # Start dev server on port 5000
+pnpm run build     # Production build → dist/
+pnpm run serve     # Preview production build
+```
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## Pages & Routes
 
-## Root Scripts
+| Route | Page | Notes |
+|-------|------|-------|
+| `/` | Dashboard | Org profile, stats, recent services |
+| `/customers` | CustomerListPage | |
+| `/contracts` | ContractsPage | 5 contracts, scrollable list, tabs |
+| `/services/:id` | ResourceDetailPage | VPS resource detail + action panel |
+| `/cloud-service` | InventoryListPage | Inventory with icon header |
+| `/request-services` | RequestServicesPage | Service catalog with plans |
+| `/wishlist` | WishlistPage | |
+| `/orders` | OrderListPage | |
+| `/orders/:id` | OrderDetailPage | Change Package activation bar |
+| `/notifications` | NotificationsPage | |
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Data
 
-## Packages
+All data is hardcoded mock data — no real API calls. The `src/data/` and `src/hooks/` directories contain the static datasets.
 
-### `artifacts/rajuk-dashboard` (`@workspace/rajuk-dashboard`)
+## Key Design Decisions
 
-RAJUK (Rajdhani Unnayan Kartipakkha) government portal — a multi-page React JS (plain JavaScript) web app. Converted from TypeScript to JavaScript (React JS) while preserving the original UI design.
-
-- **Stack**: React + Vite + Tailwind CSS + shadcn/ui
-- **Language**: Plain JavaScript (.jsx / .js) — no TypeScript
-- **Design**: Professional blue/white government portal aesthetic; sidebar navy `#1a2840`
-- **Pages**: Dashboard, Customers, Contract & Services (ContractsPage), Cloud Service (InventoryList / ResourceDetail), Request Based Service, My Wishlist, Order History (OrderList / OrderDetail), Inventory
-- **Data**: All hardcoded mock data — no real API calls
-- **Entry**: `src/main.jsx` → `src/App.jsx`
-- **Config**: `vite.config.js` (no tsconfig)
-- `pnpm --filter @workspace/rajuk-dashboard run dev` — dev server
-
-### `artifacts/api-server` (`@workspace/api-server`)
-
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
-
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
-
-### `lib/db` (`@workspace/db`)
-
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
-
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- All dialogs prevent close on outside click (modified `dialog.jsx`)
+- Primary color: `hsl(221 83% 53%)` (blue)
+- Sidebar: navy `#1a2840`, header `#152035`
+- Sidebar menu order: Dashboard → Customers → Contract & Services → Cloud Service → Request Based Service → My WishList → Order History → Inventory
