@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Package, Plus, Hash, Monitor, BarChart2, Ruler, Eye,
   Search, ChevronLeft, ChevronRight, Server, HardDrive, Cpu,
-  Mail, Database, SlidersHorizontal
+  Mail, Database, SlidersHorizontal, ArrowDownCircle, ArrowUpCircle,
+  Clock, User, Activity, TrendingUp, TrendingDown
 } from "lucide-react";
 
 /* ── Mock data ───────────────────────────────────────────── */
@@ -55,10 +56,177 @@ function platformBadge(p: string) {
   return "bg-slate-100 text-slate-600 border-slate-200";
 }
 
-/* ── Add Inventory Dialog ────────────────────────────────── */
+/* ── Mock history generator ──────────────────────────────── */
+type TxType = "Delivery" | "Incoming" | "Deactivation" | "Activation" | "Adjustment";
+
+interface HistoryRow {
+  id: number; txId: string; transaction: TxType;
+  quantity: number; balance: number; actionBy: string; actionById: number;
+  time: string;
+}
+
+const ACTORS = [
+  { email: "team1@bcc.gov.bd",            id: 321 },
+  { email: "customer_manager1@bcc.gov.bd",id: 323 },
+  { email: "admin@bcc.gov.bd",            id: 310 },
+  { email: "ops_lead@bcc.gov.bd",         id: 318 },
+];
+const TX_TYPES: TxType[] = ["Delivery", "Incoming", "Delivery", "Delivery", "Deactivation", "Delivery", "Activation", "Adjustment", "Delivery", "Incoming", "Delivery", "Deactivation", "Delivery", "Delivery", "Incoming", "Delivery"];
+
+function generateHistory(qty: number): HistoryRow[] {
+  let balance = qty;
+  const rows: HistoryRow[] = [];
+  const base = 913;
+  const baseMs = new Date("2026-03-15T15:08:00").getTime();
+  for (let i = 0; i < 16; i++) {
+    const tx = TX_TYPES[i] as TxType;
+    const delta = tx === "Delivery" ? Math.floor(Math.random() * 30) : tx === "Incoming" ? Math.floor(Math.random() * 60) + 20 : Math.floor(Math.random() * 5) + 1;
+    const actor = ACTORS[i % ACTORS.length];
+    const ms = baseMs - i * 1000 * 60 * (15 + Math.floor(Math.random() * 180));
+    const d = new Date(ms);
+    const time = d.toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true });
+    rows.push({ id: i, txId: `#${base - i * 2}`, transaction: tx, quantity: delta, balance, actionBy: actor.email, actionById: actor.id, time });
+    if (tx === "Incoming") balance += delta;
+    else if (tx === "Delivery" || tx === "Deactivation") balance -= delta;
+  }
+  return rows;
+}
+
+/* ── Inventory Details Dialog ────────────────────────────── */
 interface InventoryItem {
   id: number; resourceType: string; platformType: string; quantity: number; unit: string;
 }
+
+function txStyle(tx: TxType) {
+  switch (tx) {
+    case "Delivery":     return { cls: "bg-blue-50 text-blue-700 border-blue-200",   icon: ArrowUpCircle,   iconCls: "text-blue-500"   };
+    case "Incoming":     return { cls: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: ArrowDownCircle, iconCls: "text-emerald-500" };
+    case "Deactivation": return { cls: "bg-rose-50 text-rose-700 border-rose-200",   icon: TrendingDown,    iconCls: "text-rose-500"   };
+    case "Activation":   return { cls: "bg-green-50 text-green-700 border-green-200",icon: TrendingUp,      iconCls: "text-green-500"  };
+    case "Adjustment":   return { cls: "bg-amber-50 text-amber-700 border-amber-200",icon: Activity,        iconCls: "text-amber-500"  };
+  }
+}
+
+function InventoryDetailsDialog({
+  item, open, onOpenChange,
+}: { item: InventoryItem | null; open: boolean; onOpenChange: (v: boolean) => void }) {
+  if (!item) return null;
+  const history = generateHistory(item.quantity);
+  const incomingTotal = history.filter((r) => r.transaction === "Incoming").reduce((s, r) => s + r.quantity, 0);
+  const deliveryTotal = history.filter((r) => r.transaction === "Delivery").reduce((s, r) => s + r.quantity, 0);
+  const meta = resourceMeta(item.resourceType);
+  const Icon = meta.icon;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden rounded-2xl">
+        {/* Header */}
+        <DialogHeader className="px-8 pt-6 pb-5 border-b border-border/50 bg-white">
+          <div className="flex items-center gap-4">
+            <div className={`p-2.5 rounded-xl border ${meta.bg} ${meta.border}`}>
+              <Icon className={`w-5 h-5 ${meta.text}`} />
+            </div>
+            <div>
+              <DialogTitle className="text-lg font-bold text-foreground">Inventory Resource History</DialogTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Track all inventory transactions and movements for{" "}
+                <span className="font-semibold text-foreground">{item.resourceType}</span>
+                {" "}&mdash;{" "}
+                <Badge variant="outline" className={`text-xs font-bold ${platformBadge(item.platformType)}`}>{item.platformType}</Badge>
+              </p>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="bg-slate-50/60 max-h-[75vh] overflow-y-auto">
+          {/* Stat cards */}
+          <div className="px-8 pt-6 pb-4 grid grid-cols-3 gap-4">
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+              <p className="text-xs font-semibold text-indigo-500 mb-1.5">Total Transactions</p>
+              <p className="text-3xl font-bold text-indigo-700">{history.length}</p>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+              <p className="text-xs font-semibold text-emerald-500 mb-1.5">Incoming Total</p>
+              <p className="text-3xl font-bold text-emerald-700">{incomingTotal}</p>
+            </div>
+            <div className="bg-orange-50 border border-orange-100 rounded-xl p-4">
+              <p className="text-xs font-semibold text-orange-500 mb-1.5">Delivery Total</p>
+              <p className="text-3xl font-bold text-orange-700">{deliveryTotal}</p>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="px-8 pb-8">
+            <div className="bg-white rounded-xl border border-border/60 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/60 bg-slate-50/80">
+                      {[
+                        { icon: Hash,     label: "ID"          },
+                        { icon: Activity, label: "Transaction" },
+                        { icon: BarChart2,label: "Quantity"    },
+                        { icon: TrendingUp,label:"Balance"     },
+                        { icon: User,     label: "Action By"   },
+                        { icon: Clock,    label: "Time"        },
+                      ].map(({ icon: HIcon, label }) => (
+                        <th key={label} className="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                          <span className="flex items-center gap-1.5">
+                            <HIcon className="w-3.5 h-3.5" /> {label}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/40">
+                    {history.map((row, i) => {
+                      const ts = txStyle(row.transaction);
+                      const TxIcon = ts.icon;
+                      return (
+                        <tr key={row.id} className={`hover:bg-slate-50/60 transition-colors ${i % 2 === 0 ? "" : "bg-slate-50/20"}`}>
+                          {/* ID */}
+                          <td className="px-5 py-3.5">
+                            <span className="font-mono font-bold text-slate-700 text-sm">{row.txId}</span>
+                          </td>
+                          {/* Transaction */}
+                          <td className="px-5 py-3.5">
+                            <Badge variant="outline" className={`text-xs font-semibold flex items-center gap-1 w-fit border ${ts.cls}`}>
+                              <TxIcon className={`w-3 h-3 ${ts.iconCls}`} />
+                              {row.transaction}
+                            </Badge>
+                          </td>
+                          {/* Quantity */}
+                          <td className="px-5 py-3.5">
+                            <span className="font-mono font-semibold text-foreground">{row.quantity}</span>
+                          </td>
+                          {/* Balance */}
+                          <td className="px-5 py-3.5">
+                            <span className="font-mono font-bold text-foreground">{row.balance.toLocaleString()}</span>
+                          </td>
+                          {/* Action By */}
+                          <td className="px-5 py-3.5">
+                            <p className="font-medium text-foreground text-sm">{row.actionBy}</p>
+                            <p className="text-xs text-muted-foreground">ID: {row.actionById}</p>
+                          </td>
+                          {/* Time */}
+                          <td className="px-5 py-3.5 whitespace-nowrap">
+                            <span className="text-sm text-slate-600">{row.time}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ── Add Inventory Dialog ────────────────────────────────── */
 
 function AddInventoryDialog({
   open, onOpenChange, onAdd,
@@ -179,6 +347,8 @@ export default function InventoryListPage() {
   const [platformFilter, setPlatformFilter] = useState("All");
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<InventoryItem | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const filtered = data.filter((row) => {
     const matchSearch =
@@ -324,7 +494,9 @@ export default function InventoryListPage() {
                       </td>
                       {/* Details */}
                       <td className="px-6 py-3.5">
-                        <Button size="sm" className="bg-primary hover:bg-primary/90 text-white h-7 px-4 text-xs font-semibold rounded-lg">
+                        <Button size="sm"
+                          onClick={() => { setDetailItem(row); setDetailOpen(true); }}
+                          className="bg-primary hover:bg-primary/90 text-white h-7 px-4 text-xs font-semibold rounded-lg">
                           Details
                         </Button>
                       </td>
@@ -373,6 +545,7 @@ export default function InventoryListPage() {
       </div>
 
       <AddInventoryDialog open={dialogOpen} onOpenChange={setDialogOpen} onAdd={handleAdd} />
+      <InventoryDetailsDialog item={detailItem} open={detailOpen} onOpenChange={setDetailOpen} />
     </AppLayout>
   );
 }
