@@ -108,6 +108,39 @@ function EmailPricingDialog({ open, onOpenChange }: { open: boolean; onOpenChang
   );
 }
 
+/* ─── Remove Item Dialog ──────────────────────────────── */
+
+function RemoveDialog({ open, onOpenChange, onConfirm }: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm p-0 gap-0 overflow-hidden rounded-xl">
+        <DialogHeader className="bg-primary px-6 py-4">
+          <DialogTitle className="text-white text-base font-bold">Remove Item</DialogTitle>
+        </DialogHeader>
+        <div className="px-6 py-5 bg-white">
+          <p className="text-sm text-slate-600 leading-relaxed">
+            Are you sure you want to remove this item from your wishlist?<br />
+            This action cannot be undone.
+          </p>
+        </div>
+        <DialogFooter className="px-6 pb-5 bg-white flex justify-end gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button
+            onClick={() => { onConfirm(); onOpenChange(false); }}
+            className="bg-rose-600 hover:bg-rose-700 text-white font-semibold"
+          >
+            Confirm
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ─── Checkout Dialog ─────────────────────────────────── */
 
 function CheckoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
@@ -279,8 +312,14 @@ function CheckoutDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (
 /* ─── Page ──────────────────────────────────────────────── */
 
 export default function WishlistPage() {
+  const { toast } = useToast();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [pricingOpen, setPricingOpen] = useState(false);
+  const [removeOpen, setRemoveOpen] = useState(false);
+
+  const handleRemoveConfirm = () => {
+    toast({ title: "Item removed", description: "The item has been removed from your wishlist." });
+  };
 
   return (
     <AppLayout withSidebar>
@@ -349,7 +388,11 @@ export default function WishlistPage() {
                         <td className="px-4 py-4 align-top text-right font-medium text-slate-500">N/A</td>
                         <td className="px-4 py-4 align-top text-right font-bold text-primary">৳ 1000</td>
                         <td className="px-4 py-4 align-top text-center">
-                          <Button size="sm" className="h-7 px-3 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold">
+                          <Button
+                            size="sm"
+                            onClick={() => setRemoveOpen(true)}
+                            className="h-7 px-3 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold"
+                          >
                             Remove
                           </Button>
                         </td>
@@ -407,7 +450,12 @@ export default function WishlistPage() {
                           <td className="px-4 py-4 align-top text-right font-medium">৳ 5,000</td>
                           <td className="px-4 py-4 align-top text-right font-bold text-emerald-600">৳ 5000</td>
                           <td className="px-4 py-4 align-top text-center">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setRemoveOpen(true)}
+                              className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </td>
@@ -457,6 +505,7 @@ export default function WishlistPage() {
 
       <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} />
       <EmailPricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
+      <RemoveDialog open={removeOpen} onOpenChange={setRemoveOpen} onConfirm={handleRemoveConfirm} />
     </AppLayout>
   );
 }
