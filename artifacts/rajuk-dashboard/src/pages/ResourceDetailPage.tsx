@@ -1,18 +1,212 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Link } from "wouter";
-import { ChevronRight, Package, FileText, Settings, History, Activity, AlertTriangle, Plus } from "lucide-react";
+import {
+  ChevronRight, Package, FileText, Settings, History,
+  Activity, AlertTriangle, Plus, Upload, Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useState, useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+
+/* ─── File Drop Zone ──────────────────────────────────── */
+
+function EmailListDropZone({ file, onFile }: { file: File | null; onFile: (f: File) => void }) {
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div
+      onDragOver={e => { e.preventDefault(); setDragging(true); }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={e => {
+        e.preventDefault(); setDragging(false);
+        const f = e.dataTransfer.files[0]; if (f) onFile(f);
+      }}
+      onClick={() => inputRef.current?.click()}
+      className={`border-2 border-dashed rounded-lg py-5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+        dragging ? "border-primary bg-primary/5" : "border-slate-300 hover:border-primary/50 hover:bg-slate-50"
+      }`}
+    >
+      <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden"
+        onChange={e => { if (e.target.files?.[0]) onFile(e.target.files[0]); }} />
+      <Upload className="w-4 h-4 text-slate-400" />
+      {file
+        ? <p className="text-sm font-medium text-primary">{file.name}</p>
+        : <p className="text-sm text-slate-500">
+            Drag & Drop file for Email list here or{" "}
+            <span className="text-primary font-semibold underline">Browse</span>
+          </p>
+      }
+    </div>
+  );
+}
+
+/* ─── Change Package Dialog ────────────────────────────── */
+
+function ChangePackageDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { toast } = useToast();
+  const [emailAccounts, setEmailAccounts] = useState("0");
+  const [emailAction, setEmailAction] = useState<"add" | "remove">("add");
+  const [domainQuota, setDomainQuota] = useState("25");
+  const [emailFile, setEmailFile] = useState<File | null>(null);
+  const [adminEmails, setAdminEmails] = useState(["admin@a.gov.bd", "support@a.gov.bd"]);
+
+  const quotaNum = parseInt(domainQuota) || 0;
+  const quotaValid = quotaNum >= 20 && quotaNum <= 500 && quotaNum % 5 === 0;
+
+  const handleAddAdmin = () => setAdminEmails(prev => [...prev, ""]);
+  const handleDeleteAdmin = (i: number) =>
+    setAdminEmails(prev => prev.filter((_, idx) => idx !== i));
+  const handleAdminChange = (i: number, val: string) =>
+    setAdminEmails(prev => { const n = [...prev]; n[i] = val; return n; });
+
+  const handleConfirm = () => {
+    onOpenChange(false);
+    toast({ title: "Package change requested", description: "Your change package request has been submitted." });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden rounded-xl">
+
+        {/* Header */}
+        <DialogHeader className="bg-primary px-6 py-4 shrink-0">
+          <DialogTitle className="text-white text-lg font-bold">Change Package</DialogTitle>
+        </DialogHeader>
+
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 bg-white">
+
+          {/* No of Email Accounts */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-slate-700">No of Email Accounts</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min={0}
+                value={emailAccounts}
+                onChange={e => setEmailAccounts(e.target.value)}
+                className="w-40 bg-white"
+              />
+              <div className="flex items-center gap-4 text-sm font-medium">
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="emailAction"
+                    value="add"
+                    checked={emailAction === "add"}
+                    onChange={() => setEmailAction("add")}
+                    className="accent-primary"
+                  />
+                  Add
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="emailAction"
+                    value="remove"
+                    checked={emailAction === "remove"}
+                    onChange={() => setEmailAction("remove")}
+                    className="accent-primary"
+                  />
+                  Remove
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Domain Quota */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-slate-700">Domain Quota (GB)</Label>
+            <Input
+              type="number"
+              min={20}
+              max={500}
+              step={5}
+              value={domainQuota}
+              onChange={e => setDomainQuota(e.target.value)}
+              className={`w-40 bg-white ${!quotaValid && domainQuota !== "" ? "border-amber-400 focus-visible:ring-amber-300" : ""}`}
+            />
+            <div className="space-y-0.5">
+              <p className="text-xs text-amber-600 font-medium">** Domain Quota in range from 20GB to 500GB</p>
+              <p className="text-xs text-amber-600 font-medium">** Domain Quota amount should be multiple of 5.</p>
+            </div>
+          </div>
+
+          {/* Email list file upload */}
+          <div className="space-y-2">
+            <p className="text-xs text-rose-500 font-medium">
+              * Please submit Excel email list to add or remove emails
+            </p>
+            <EmailListDropZone file={emailFile} onFile={setEmailFile} />
+          </div>
+
+          {/* Admin Email Accounts */}
+          <div className="space-y-3">
+            {adminEmails.map((email, i) => (
+              <div key={i} className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">
+                  Admin Email Account {i + 1}
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={email}
+                    onChange={e => handleAdminChange(i, e.target.value)}
+                    placeholder="admin@example.gov.bd"
+                    className="bg-white flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => handleDeleteAdmin(i)}
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 shrink-0"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAddAdmin}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600 font-semibold gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add Admin Email
+            </Button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <DialogFooter className="px-6 py-4 bg-white border-t shrink-0 flex justify-end gap-3">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button
+            onClick={handleConfirm}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold gap-1.5"
+          >
+            Confirm Change
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────── */
 
 export default function ResourceDetailPage() {
+  const [changePackageOpen, setChangePackageOpen] = useState(false);
+
   return (
     <AppLayout withSidebar>
       <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
-        
+
         {/* Breadcrumb */}
         <div className="flex items-center text-sm font-medium text-muted-foreground gap-2">
           <Link href="/orders" className="hover:text-primary transition-colors">Order List</Link>
@@ -33,7 +227,7 @@ export default function ResourceDetailPage() {
           <TabsContent value="info" className="space-y-6 m-0 animate-in fade-in-50">
             {/* Info Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              
+
               <Card className="bg-[#f0f7ff] border-blue-100 shadow-sm">
                 <CardContent className="p-5">
                   <h3 className="text-sm font-bold text-blue-900 mb-4 flex items-center gap-2">
@@ -144,7 +338,10 @@ export default function ResourceDetailPage() {
                 </div>
 
                 <div className="mt-8 pt-6 border-t flex flex-col sm:flex-row justify-end gap-4">
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 px-8 rounded-xl">
+                  <Button
+                    onClick={() => setChangePackageOpen(true)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 px-8 rounded-xl"
+                  >
                     Change Package
                   </Button>
                   <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-11 px-8 rounded-xl bg-white">
@@ -158,7 +355,7 @@ export default function ResourceDetailPage() {
           <TabsContent value="attached" className="space-y-8 m-0 animate-in fade-in-50">
             <div>
               <h2 className="text-xl font-bold text-foreground mb-4">Additional Resources</h2>
-              
+
               <Card className="mb-8 border-border shadow-sm overflow-hidden">
                 <div className="p-4 border-b bg-slate-50/50">
                   <h3 className="font-bold text-foreground">Orphan Resource Packages</h3>
@@ -249,6 +446,8 @@ export default function ResourceDetailPage() {
         </Tabs>
 
       </div>
+
+      <ChangePackageDialog open={changePackageOpen} onOpenChange={setChangePackageOpen} />
     </AppLayout>
   );
 }
