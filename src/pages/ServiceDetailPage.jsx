@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useParams } from "wouter";
-import { ChevronRight, Cloud, Eye, Pencil, Server, Mail, ChevronLeft } from "lucide-react";
+import {
+  ChevronRight,
+  Cloud,
+  Eye,
+  Pencil,
+  Server,
+  Mail,
+  ChevronLeft,
+  Search,
+  Check,
+  Phone,
+  UserCircle2,
+  X,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card, CardContent } from "../components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../components/ui/collapsible";
-import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { cn } from "../lib/utils";
+
 const PACKAGES = [
   {
     id: "1",
@@ -128,12 +148,343 @@ const PACKAGES = [
     activated: "Feb 20, 2026 10:15 AM",
   },
 ];
+
+const ALL_USERS = [
+  {
+    id: "u1",
+    name: "Md. Jamal Uddin",
+    designation: "Deputy Director Finance & Accounts",
+    email: "ddflinance@rajuk.gov.bd",
+    phone: "+8801711223344",
+  },
+  {
+    id: "u2",
+    name: "Md. Abu Kawser Mollik",
+    designation: "Director Finance",
+    email: "drfin@rajuk.gov.bd",
+    phone: "+8801777775514",
+  },
+  {
+    id: "u3",
+    name: "Kaji M. Mahabubul Hoque",
+    designation: "Senior System Analyst",
+    email: "saa@rajuk.gov.bd",
+    phone: "+8801900112233",
+  },
+  {
+    id: "u4",
+    name: "Lutfor Rahman",
+    designation: "Programmer",
+    email: "programmer@rajuk.gov.bd",
+    phone: "+8801554001971",
+  },
+  {
+    id: "u5",
+    name: "Nasrin Akter",
+    designation: "Accounts Officer",
+    email: "accounts@rajuk.gov.bd",
+    phone: "+8801612345678",
+  },
+  {
+    id: "u6",
+    name: "Mohammad Rafiqul Islam",
+    designation: "Senior Accounts Officer",
+    email: "saccounts@rajuk.gov.bd",
+    phone: "+8801823456789",
+  },
+  {
+    id: "u7",
+    name: "Farida Begum",
+    designation: "Assistant Director Finance",
+    email: "adfinance@rajuk.gov.bd",
+    phone: "+8801934567890",
+  },
+  {
+    id: "u8",
+    name: "Kamal Hossain",
+    designation: "Network Engineer",
+    email: "network@rajuk.gov.bd",
+    phone: "+8801745678901",
+  },
+  {
+    id: "u9",
+    name: "Sumaiya Khanam",
+    designation: "System Engineer",
+    email: "syseng@rajuk.gov.bd",
+    phone: "+8801856789012",
+  },
+  {
+    id: "u10",
+    name: "Md. Habibur Rahman",
+    designation: "Deputy Director IT",
+    email: "ddit@rajuk.gov.bd",
+    phone: "+8801967890123",
+  },
+  {
+    id: "u11",
+    name: "Shirin Akter",
+    designation: "Finance Manager",
+    email: "fmanager@rajuk.gov.bd",
+    phone: "+8801578901234",
+  },
+  {
+    id: "u12",
+    name: "Md. Aminul Islam",
+    designation: "IT Officer",
+    email: "itofficer@rajuk.gov.bd",
+    phone: "+8801689012345",
+  },
+];
+
+const ROLE_LABELS = {
+  primaryBilling: "Primary Billing",
+  secondaryBilling: "Secondary Billing",
+  primaryTechnical: "Primary Technical",
+  secondaryTechnical: "Secondary Technical",
+};
+
+const ROLE_STYLE = {
+  primaryBilling: {
+    cardClass: "border-primary/20 bg-primary/5",
+    badgeClass: "bg-white border-primary/30 text-primary",
+    badgeVariant: "outline",
+  },
+  secondaryBilling: {
+    cardClass: "",
+    badgeClass: "",
+    badgeVariant: "secondary",
+  },
+  primaryTechnical: {
+    cardClass: "border-primary/20 bg-primary/5",
+    badgeClass: "bg-white border-primary/30 text-primary",
+    badgeVariant: "outline",
+  },
+  secondaryTechnical: {
+    cardClass: "",
+    badgeClass: "",
+    badgeVariant: "secondary",
+  },
+};
+
+function UserCard({ role, user, onEdit }) {
+  const style = ROLE_STYLE[role];
+  return (
+    <Card className={cn("relative group", style.cardClass)}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => onEdit(role)}
+        className="absolute top-2 right-2 h-8 w-8 text-primary opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary/10"
+        title={`Edit ${ROLE_LABELS[role]}`}
+      >
+        <Pencil className="w-4 h-4" />
+      </Button>
+      <CardContent className="p-5 pt-6">
+        <Badge
+          variant={style.badgeVariant}
+          className={cn("mb-3 text-xs font-semibold", style.badgeClass)}
+        >
+          {ROLE_LABELS[role]}
+        </Badge>
+        <p className="font-bold text-foreground text-base mb-0.5">{user.name}</p>
+        <p className="text-xs text-muted-foreground mb-3 font-medium">{user.designation}</p>
+        <div className="space-y-1.5 text-sm">
+          <p className="flex items-center gap-2 text-slate-600">
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{user.email}</span>
+          </p>
+          {user.phone && (
+            <p className="flex items-center gap-2 text-slate-600">
+              <Phone className="w-3.5 h-3.5 shrink-0" />
+              <span>{user.phone}</span>
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function AssignUserDialog({ open, onOpenChange, role, currentUserId, onSave }) {
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState(currentUserId);
+
+  const filtered = ALL_USERS.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.designation.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  function handleSave() {
+    const user = ALL_USERS.find((u) => u.id === selected);
+    if (user) onSave(role, user);
+    onOpenChange(false);
+  }
+
+  function handleOpenChange(val) {
+    if (!val) {
+      setSearch("");
+      setSelected(currentUserId);
+    }
+    onOpenChange(val);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/60 bg-slate-50/60">
+          <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+            <UserCircle2 className="w-5 h-5 text-primary" />
+            Assign {role ? ROLE_LABELS[role] : ""} User
+          </DialogTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Select a staff member to assign as the {role ? ROLE_LABELS[role].toLowerCase() : ""}{" "}
+            contact for this service.
+          </p>
+        </DialogHeader>
+
+        {/* Search */}
+        <div className="px-4 py-3 border-b border-border/40 bg-white">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by name, designation or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-9 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white"
+              autoFocus
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* User list */}
+        <div className="overflow-y-auto max-h-[340px] divide-y divide-border/40">
+          {filtered.length === 0 ? (
+            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+              No users found matching "{search}"
+            </div>
+          ) : (
+            filtered.map((user) => {
+              const isSelected = user.id === selected;
+              return (
+                <button
+                  key={user.id}
+                  onClick={() => setSelected(user.id)}
+                  className={cn(
+                    "w-full text-left flex items-center gap-4 px-5 py-3.5 transition-colors",
+                    isSelected
+                      ? "bg-primary/5 border-l-2 border-primary"
+                      : "hover:bg-slate-50 border-l-2 border-transparent"
+                  )}
+                >
+                  {/* Avatar placeholder */}
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                      isSelected
+                        ? "bg-primary text-white"
+                        : "bg-slate-100 text-slate-600"
+                    )}
+                  >
+                    {user.name
+                      .split(" ")
+                      .slice(0, 2)
+                      .map((n) => n[0])
+                      .join("")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={cn(
+                        "text-sm font-semibold truncate",
+                        isSelected ? "text-primary" : "text-foreground"
+                      )}
+                    >
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">{user.designation}</p>
+                    <p className="text-xs text-slate-500 truncate mt-0.5">{user.email}</p>
+                  </div>
+                  <div className="shrink-0">
+                    {isSelected ? (
+                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-border" />
+                    )}
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="px-5 py-4 border-t border-border/60 bg-slate-50/60 flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            {selected
+              ? `Selected: ${ALL_USERS.find((u) => u.id === selected)?.name}`
+              : "No user selected"}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="h-8"
+              disabled={!selected}
+              onClick={handleSave}
+            >
+              Save Assignment
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ServiceDetailPage() {
   const { serviceId } = useParams();
   const [packagesOpen, setPackagesOpen] = useState(true);
   const [usersOpen, setUsersOpen] = useState(true);
+
+  const [assignedUsers, setAssignedUsers] = useState({
+    primaryBilling: ALL_USERS[0],
+    secondaryBilling: ALL_USERS[1],
+    primaryTechnical: ALL_USERS[2],
+    secondaryTechnical: ALL_USERS[3],
+  });
+
+  const [editDialog, setEditDialog] = useState({ open: false, role: null });
+
+  function openEdit(role) {
+    setEditDialog({ open: true, role });
+  }
+
+  function handleSaveUser(role, user) {
+    setAssignedUsers((prev) => ({ ...prev, [role]: user }));
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
+      {/* Breadcrumb */}
       <div className="flex items-center text-sm font-medium text-muted-foreground gap-2">
         <Link href="/contracts" className="hover:text-primary transition-colors">
           Contracts
@@ -141,6 +492,8 @@ export default function ServiceDetailPage() {
         <ChevronRight className="w-4 h-4" />
         <span className="text-foreground">Service Details</span>
       </div>
+
+      {/* Service header card */}
       <div className="bg-white rounded-2xl border border-border shadow-sm p-6 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-2 h-full bg-primary" />
         <div className="absolute top-6 right-6">
@@ -176,6 +529,8 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Resource Packages */}
       <Collapsible
         open={packagesOpen}
         onOpenChange={setPackagesOpen}
@@ -232,7 +587,13 @@ export default function ServiceDetailPage() {
                           <p className="text-xs font-medium text-slate-500 mb-2">{pkg.name}</p>
                           <Badge
                             variant="outline"
-                            className={`text-[10px] uppercase ${pkg.status === "ACTIVATED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : pkg.status === "DEACTIVATED" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}
+                            className={`text-[10px] uppercase ${
+                              pkg.status === "ACTIVATED"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : pkg.status === "DEACTIVATED"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                                  : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}
                           >
                             {pkg.status}
                           </Badge>
@@ -299,7 +660,7 @@ export default function ServiceDetailPage() {
               <Button variant="outline" size="sm" className="h-8" disabled>
                 <ChevronLeft className="w-4 h-4 mr-1" /> Previous
               </Button>
-              <div className="flex items-center gap-1 px-2 hidden md:flex">
+              <div className="hidden md:flex items-center gap-1 px-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -325,6 +686,8 @@ export default function ServiceDetailPage() {
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Service Users */}
       <Collapsible
         open={usersOpen}
         onOpenChange={setUsersOpen}
@@ -334,7 +697,7 @@ export default function ServiceDetailPage() {
           <div className="text-left">
             <h2 className="text-lg font-bold text-foreground">Service Users</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Manage billing and technical contacts for this service
+              Manage billing and technical contacts for this service — hover a card to reassign
             </p>
           </div>
           <ChevronRight
@@ -343,103 +706,26 @@ export default function ServiceDetailPage() {
         </CollapsibleTrigger>
         <CollapsibleContent className="p-6 animate-in slide-in-from-top-2 fade-in-20 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="relative group border-primary/20 bg-primary/5">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <CardContent className="p-5 pt-6">
-                <Badge variant="outline" className="mb-3 bg-white">
-                  Primary Billing
-                </Badge>
-                <p className="font-bold text-foreground text-lg mb-1">Md. Jamal Uddin</p>
-                <p className="text-xs text-muted-foreground mb-3 font-medium">
-                  {"Deputy Director Finance & Accounts"}
-                </p>
-                <div className="space-y-1.5 text-sm">
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <Mail className="w-3.5 h-3.5" /> ddflinance@rajuk.gov.bd
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="relative group">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <CardContent className="p-5 pt-6">
-                <Badge variant="secondary" className="mb-3">
-                  Secondary Billing
-                </Badge>
-                <p className="font-bold text-foreground text-lg mb-1">Md. Abu Kawser Mollik</p>
-                <p className="text-xs text-muted-foreground mb-3 font-medium">Director Finance</p>
-                <div className="space-y-1.5 text-sm">
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <Mail className="w-3.5 h-3.5" /> drfin@rajuk.gov.bd
-                  </p>
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <span>📱</span> +8801777775514
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="relative group border-primary/20 bg-primary/5">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <CardContent className="p-5 pt-6">
-                <Badge variant="outline" className="mb-3 bg-white">
-                  Primary Technical
-                </Badge>
-                <p className="font-bold text-foreground text-lg mb-1">Kaji M. Mahabubul Hoque</p>
-                <p className="text-xs text-muted-foreground mb-3 font-medium">
-                  Senior System analyst
-                </p>
-                <div className="space-y-1.5 text-sm">
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <Mail className="w-3.5 h-3.5" /> saa@rajuk.gov.bd
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="relative group">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <CardContent className="p-5 pt-6">
-                <Badge variant="secondary" className="mb-3">
-                  Secondary Technical
-                </Badge>
-                <p className="font-bold text-foreground text-lg mb-1">Lutfor Rahman</p>
-                <p className="text-xs text-muted-foreground mb-3 font-medium">Programmer</p>
-                <div className="space-y-1.5 text-sm">
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <Mail className="w-3.5 h-3.5" /> programmer@rajuk.gov.bd
-                  </p>
-                  <p className="flex items-center gap-2 text-slate-600">
-                    <span>📱</span> +8801554001971
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            {Object.keys(assignedUsers).map((role) => (
+              <UserCard
+                key={role}
+                role={role}
+                user={assignedUsers[role]}
+                onEdit={openEdit}
+              />
+            ))}
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Assign User Dialog */}
+      <AssignUserDialog
+        open={editDialog.open}
+        onOpenChange={(val) => setEditDialog((prev) => ({ ...prev, open: val }))}
+        role={editDialog.role}
+        currentUserId={editDialog.role ? assignedUsers[editDialog.role]?.id : null}
+        onSave={handleSaveUser}
+      />
     </div>
   );
 }
