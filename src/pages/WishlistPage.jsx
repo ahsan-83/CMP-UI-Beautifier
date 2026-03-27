@@ -405,14 +405,14 @@ export default function WishlistPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="font-semibold bg-white">
-              <Check className="w-4 h-4 mr-2" /> Select All
+            <Button variant="outline" className="font-semibold bg-white text-xs px-2.5 py-1 h-7">
+              <Check className="w-3 h-3 mr-1.5" /> Select All
             </Button>
             <Button
               variant="outline"
-              className="border-primary text-primary hover:bg-primary/5 font-semibold bg-white"
+              className="border-primary text-primary hover:bg-primary/5 font-semibold bg-white text-xs px-2.5 py-1 h-7"
             >
-              <FileText className="w-4 h-4 mr-2" /> Save as PDF
+              <FileText className="w-3 h-3 mr-1.5" /> Save as PDF
             </Button>
           </div>
         </div>
@@ -438,6 +438,11 @@ export default function WishlistPage() {
                   <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border border-primary/20 text-xs font-bold">
                     ৳ 1000
                   </Badge>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                    Mar 15, 2026 03:19 PM
+                  </span>
                   <Button
                     size="sm"
                     variant="outline"
@@ -447,25 +452,22 @@ export default function WishlistPage() {
                     <BarChart2 className="w-3.5 h-3.5" /> View Pricing
                   </Button>
                 </div>
-                <div className="text-xs text-muted-foreground font-medium whitespace-nowrap">
-                  Mar 15, 2026 03:19 PM
-                </div>
               </div>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-muted-foreground bg-slate-50/50 uppercase">
+                  <table className="w-full text-sm text-left border border-slate-200">
+                    <thead className="text-xs text-muted-foreground bg-blue-50 uppercase">
                       <tr>
-                        <th className="px-4 py-3 font-semibold w-1/2">Feature</th>
-                        <th className="px-4 py-3 font-semibold text-center">Quantity</th>
-                        <th className="px-4 py-3 font-semibold text-right">Monthly Fee</th>
-                        <th className="px-4 py-3 font-semibold text-right">Total Fee</th>
-                        <th className="px-4 py-3 font-semibold text-center">Action</th>
+                        <th className="px-4 py-3 font-semibold w-1/2 border border-slate-200">Feature</th>
+                        <th className="px-4 py-3 font-semibold text-center border border-slate-200">Quantity</th>
+                        <th className="px-4 py-3 font-semibold text-right border border-slate-200">Monthly Fee</th>
+                        <th className="px-4 py-3 font-semibold text-right border border-slate-200">Total Fee</th>
+                        <th className="px-4 py-3 font-semibold text-center border border-slate-200">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/40">
-                      <tr className="hover:bg-slate-50/30">
-                        <td className="px-4 py-4 align-top">
+                      <tr className="hover:bg-slate-50/50 bg-slate-50/30">
+                        <td className="px-4 py-4 align-top border border-slate-200">
                           <p className="font-medium text-slate-700 leading-relaxed text-xs">
                             Domain Name: a.bd  No of Email Accounts: 10
                             <br />
@@ -473,14 +475,14 @@ export default function WishlistPage() {
                             Domain Quota Upgradation: Unlimited (per GB): 0
                           </p>
                         </td>
-                        <td className="px-4 py-4 align-top text-center font-semibold">1</td>
-                        <td className="px-4 py-4 align-top text-right font-medium text-slate-500">
+                        <td className="px-4 py-4 align-top text-center font-semibold border border-slate-200">1</td>
+                        <td className="px-4 py-4 align-top text-right font-medium text-slate-500 border border-slate-200">
                           N/A
                         </td>
-                        <td className="px-4 py-4 align-top text-right font-bold text-primary">
+                        <td className="px-4 py-4 align-top text-right font-bold text-primary border border-slate-200">
                           ৳ 1000
                         </td>
-                        <td className="px-4 py-4 align-top text-center">
+                        <td className="px-4 py-4 align-top text-center border border-slate-200">
                           <Button
                             size="sm"
                             onClick={() => setRemoveOpen(true)}
@@ -500,8 +502,8 @@ export default function WishlistPage() {
                 key={item}
                 className="overflow-hidden border-border/80 shadow-sm hover:border-primary/30 transition-colors"
               >
-                <div className="bg-slate-50/80 p-3 border-b flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="bg-slate-50/80 px-3 py-2.5 border-b flex flex-wrap items-center gap-2 justify-between">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Checkbox id={`item-${item}`} />
                     <label
                       htmlFor={`item-${item}`}
@@ -509,53 +511,57 @@ export default function WishlistPage() {
                     >
                       Item {item}
                     </label>
+                    <span className="font-bold text-sm text-slate-700">Virtual Private Server (VPS) Service</span>
+                    <Badge
+                      variant="outline"
+                      className="bg-white text-slate-600 border-slate-300 text-[10px] font-semibold"
+                    >
+                      Basic
+                    </Badge>
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border border-primary/20 text-xs font-bold">
+                      ৳ 5000
+                    </Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground font-medium">
-                    Mar 15, 2026 01:19 PM
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                      Mar 15, 2026 01:19 PM
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setPricingOpen(true)}
+                      className="h-7 px-3 text-xs font-semibold border-primary text-primary hover:bg-primary/5 bg-white gap-1.5"
+                    >
+                      <BarChart2 className="w-3.5 h-3.5" /> View Pricing
+                    </Button>
                   </div>
                 </div>
                 <CardContent className="p-0">
-                  <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 border-b border-dashed border-border/60">
-                    <h3 className="font-bold text-primary flex items-center gap-2 text-base">
-                      Virtual Private Server (VPS) Service
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className="bg-primary/5 text-primary border-primary/20 text-[10px] uppercase font-bold tracking-wider"
-                      >
-                        Basic
-                      </Badge>
-                      <Badge variant="secondary" className="bg-slate-100 text-slate-700">
-                        ৳ 5000
-                      </Badge>
-                    </div>
-                  </div>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                      <thead className="text-xs text-muted-foreground bg-slate-50/50 uppercase">
+                    <table className="w-full text-sm text-left border border-slate-200">
+                      <thead className="text-xs text-muted-foreground bg-blue-50 uppercase">
                         <tr>
-                          <th className="px-4 py-3 font-semibold w-1/2">Feature</th>
-                          <th className="px-4 py-3 font-semibold text-center">Quantity</th>
-                          <th className="px-4 py-3 font-semibold text-right">Monthly Fee</th>
-                          <th className="px-4 py-3 font-semibold text-right">Total Fee</th>
-                          <th className="px-4 py-3 font-semibold text-center">Action</th>
+                          <th className="px-4 py-3 font-semibold w-1/2 border border-slate-200">Feature</th>
+                          <th className="px-4 py-3 font-semibold text-center border border-slate-200">Quantity</th>
+                          <th className="px-4 py-3 font-semibold text-right border border-slate-200">Monthly Fee</th>
+                          <th className="px-4 py-3 font-semibold text-right border border-slate-200">Total Fee</th>
+                          <th className="px-4 py-3 font-semibold text-center border border-slate-200">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border/40">
-                        <tr className="hover:bg-slate-50/30">
-                          <td className="px-4 py-4 align-top">
+                        <tr className="hover:bg-slate-50/50 bg-slate-50/30">
+                          <td className="px-4 py-4 align-top border border-slate-200">
                             <p className="font-medium text-slate-700 leading-relaxed text-xs">
                               2 vCPU, 4 GB RAM, 100 GB Storage / OS: CentOS / Security Zone:
                               Database / Port: 22, 80, 443 / Public IP Needed: No
                             </p>
                           </td>
-                          <td className="px-4 py-4 align-top text-center font-semibold">1</td>
-                          <td className="px-4 py-4 align-top text-right font-medium">৳ 5,000</td>
-                          <td className="px-4 py-4 align-top text-right font-bold text-emerald-600">
+                          <td className="px-4 py-4 align-top text-center font-semibold border border-slate-200">1</td>
+                          <td className="px-4 py-4 align-top text-right font-medium border border-slate-200">৳ 5,000</td>
+                          <td className="px-4 py-4 align-top text-right font-bold text-emerald-600 border border-slate-200">
                             ৳ 5000
                           </td>
-                          <td className="px-4 py-4 align-top text-center">
+                          <td className="px-4 py-4 align-top text-center border border-slate-200">
                             <Button
                               variant="ghost"
                               size="icon"
