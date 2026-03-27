@@ -5,6 +5,7 @@ import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { AppLayout } from "./components/layout/AppLayout";
 import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import ContractsPage from "./pages/ContractsPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
@@ -54,6 +55,7 @@ function Router() {
     <Switch>
       <Route path="/" component={LandingPage} />
       <Route path="/landing" component={LandingPage} />
+      <Route path="/login" component={LoginPage} />
       <Route>{() => <DashboardRouter />}</Route>
     </Switch>
   );
