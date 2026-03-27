@@ -259,7 +259,7 @@ export function TopNav({ onMenuClick, showMenuButton = false, sidebarOpen = true
                 <Menu className="w-5 h-5" />
               </button>
             )}
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-3">
               <img src={ictLogo} alt="ICT Division" className="h-9 w-auto object-contain" />
               <div className="w-px h-6 bg-slate-200" />
               <img src={bccLogo} alt="BCC" className="h-8 w-auto object-contain" />

@@ -16,8 +16,9 @@ export function OrganizationCard() {
         duration: 0.5,
         ease: "easeOut",
       }}
-      className="bg-white rounded-2xl border border-border/60 shadow-sm overflow-hidden"
+      className="bg-white rounded-2xl border border-border/60 shadow-md overflow-hidden"
     >
+      <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-400" />
       <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl -z-10" />
         <div className="shrink-0 w-24 h-24 rounded-2xl bg-white border border-border/50 shadow-sm flex items-center justify-center p-4">

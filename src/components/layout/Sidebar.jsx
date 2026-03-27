@@ -18,7 +18,7 @@ const menuItems = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
-    href: "/",
+    href: "/dashboard",
   },
   {
     icon: Users,
@@ -80,7 +80,7 @@ export function Sidebar({ className, isOpen = true, onToggle }) {
       <nav className="flex-1 py-3 px-2.5 space-y-0.5 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive =
-            location === item.href || (item.href !== "/" && location.startsWith(item.href));
+            location === item.href || (item.href !== "/dashboard" && location.startsWith(item.href));
           return (
             <Link key={item.label} href={item.href}>
               <div

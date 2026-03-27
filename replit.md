@@ -30,6 +30,7 @@ rajuk-dashboard/
 │   │   ├── dashboard/             # Dashboard-specific components
 │   │   └── ui/                    # shadcn/ui components
 │   ├── pages/
+│   │   ├── LandingPage.jsx            # Public NDC landing page (no sidebar)
 │   │   ├── Dashboard.jsx
 │   │   ├── ContractsPage.jsx      # Contract & Services (5 contracts, scrollable list)
 │   │   ├── CustomerListPage.jsx
@@ -66,7 +67,9 @@ pnpm run serve     # Preview production build
 
 | Route | Page | Notes |
 |-------|------|-------|
-| `/` | Dashboard | Org profile, stats, recent services |
+| `/` | LandingPage | Public-facing NDC landing page (hero, services, about, features, customers, footer) |
+| `/landing` | LandingPage | Alias for the landing page |
+| `/dashboard` | Dashboard | Org profile, stats, recent services |
 | `/customers` | CustomerListPage | |
 | `/contracts` | ContractsPage | 5 contracts, scrollable list, tabs |
 | `/services/:id` | ResourceDetailPage | VPS resource detail + action panel |

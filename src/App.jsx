@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { AppLayout } from "./components/layout/AppLayout";
+import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import ContractsPage from "./pages/ContractsPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
@@ -26,11 +27,11 @@ const queryClient = new QueryClient({
   },
 });
 
-function Router() {
+function DashboardRouter() {
   return (
     <AppLayout withSidebar={true}>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/contracts" component={ContractsPage} />
         <Route path="/contracts/:contractId" component={ContractsPage} />
         <Route path="/services/:serviceId" component={ServiceDetailPage} />
@@ -45,6 +46,16 @@ function Router() {
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
+  );
+}
+
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={LandingPage} />
+      <Route path="/landing" component={LandingPage} />
+      <Route>{() => <DashboardRouter />}</Route>
+    </Switch>
   );
 }
 
