@@ -155,9 +155,11 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <button className="px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-all">
-              Register
-            </button>
+            <Link href="/register">
+              <button className="px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-all">
+                Register
+              </button>
+            </Link>
             <Link href="/login">
               <button className="px-4 py-2 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition-all shadow-sm">
                 Sign In
@@ -187,9 +189,11 @@ export default function LandingPage() {
               </a>
             ))}
             <div className="flex gap-2 pt-2">
-              <button className="flex-1 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50">
-                Register
-              </button>
+              <Link href="/register" className="flex-1">
+                <button className="w-full py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50">
+                  Register
+                </button>
+              </Link>
               <Link href="/login" className="flex-1">
                 <button className="w-full py-2 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800">
                   Sign In

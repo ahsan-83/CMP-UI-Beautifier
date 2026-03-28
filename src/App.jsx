@@ -6,6 +6,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { AppLayout } from "./components/layout/AppLayout";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import RegistrationPage from "./pages/RegistrationPage";
 import Dashboard from "./pages/Dashboard";
 import ContractsPage from "./pages/ContractsPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
@@ -56,6 +57,7 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/landing" component={LandingPage} />
       <Route path="/login" component={LoginPage} />
+      <Route path="/register" component={RegistrationPage} />
       <Route>{() => <DashboardRouter />}</Route>
     </Switch>
   );

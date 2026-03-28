@@ -18,6 +18,9 @@ export default defineConfig({
     port,
     host: "0.0.0.0",
     allowedHosts: true,
+    watch: {
+      ignored: ["**/.local/**", "**/node_modules/**"],
+    },
   },
   preview: {
     port,

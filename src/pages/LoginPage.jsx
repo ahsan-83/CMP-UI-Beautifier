@@ -50,9 +50,11 @@ export default function LoginPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <button className="px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-all">
-              Register
-            </button>
+            <Link href="/register">
+              <button className="px-4 py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50 transition-all">
+                Register
+              </button>
+            </Link>
             <Link href="/login">
               <button className="px-4 py-2 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition-all shadow-sm">
                 Sign In
