@@ -14,6 +14,10 @@ import {
   CheckCircle2,
   Zap,
   Clock,
+  MonitorCheck,
+  PauseCircle,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -426,7 +430,36 @@ export default function OrderDetailPage() {
   const [activationDate, setActivationDate] = useState(new Date().toISOString().split("T")[0]);
   const [activationTime, setActivationTime] = useState("00:00");
   const [activated, setActivated] = useState(false);
+  const [tableAction, setTableAction] = useState(null);
   const { toast } = useToast();
+
+  function handleOrderAction(action) {
+    setTableAction(action);
+    const config = {
+      viewAvailability: {
+        title: "Availability Check Started",
+        description: "Checking resource availability for all requested packages.",
+        className: "border-indigo-300 bg-indigo-50 text-indigo-900",
+      },
+      reject: {
+        title: "Order Rejected",
+        description: "This order has been rejected and the customer will be notified.",
+        className: "border-rose-300 bg-rose-50 text-rose-900",
+      },
+      hold: {
+        title: "Order On Hold",
+        description: "This order has been placed on hold pending further review.",
+        className: "border-amber-300 bg-amber-50 text-amber-900",
+      },
+      approve: {
+        title: "Order Approved",
+        description: "This order has been approved and queued for provisioning.",
+        className: "border-emerald-300 bg-emerald-50 text-emerald-900",
+      },
+    };
+    const c = config[action];
+    toast({ title: c.title, description: c.description });
+  }
   const openAttr = (pkg) => {
     setAttrPkg(pkg);
     setAttrOpen(true);
@@ -768,6 +801,76 @@ export default function OrderDetailPage() {
                 </table>
               )}
             </div>
+
+            {/* ── Action buttons footer — New Request orders only ── */}
+            {!isChangePackage && !isCompleted && (
+              <div className="border-t border-border/60 bg-slate-50/50 px-5 py-4">
+                {tableAction && (
+                  <div
+                    className={`mb-3 flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-lg border ${
+                      tableAction === "approve"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                        : tableAction === "reject"
+                          ? "bg-rose-50 border-rose-200 text-rose-700"
+                          : tableAction === "hold"
+                            ? "bg-amber-50 border-amber-200 text-amber-700"
+                            : "bg-indigo-50 border-indigo-200 text-indigo-700"
+                    }`}
+                  >
+                    {tableAction === "approve" && <CheckCircle2 className="w-4 h-4" />}
+                    {tableAction === "reject" && <ThumbsDown className="w-4 h-4" />}
+                    {tableAction === "hold" && <PauseCircle className="w-4 h-4" />}
+                    {tableAction === "viewAvailability" && <MonitorCheck className="w-4 h-4" />}
+                    <span>
+                      {tableAction === "approve" && "Order approved — queued for provisioning."}
+                      {tableAction === "reject" && "Order rejected — customer will be notified."}
+                      {tableAction === "hold" && "Order placed on hold pending further review."}
+                      {tableAction === "viewAvailability" && "Checking resource availability for all packages…"}
+                    </span>
+                    <button
+                      onClick={() => setTableAction(null)}
+                      className="ml-auto text-current opacity-60 hover:opacity-100 transition"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center justify-end gap-2.5">
+                  <Button
+                    onClick={() => handleOrderAction("viewAvailability")}
+                    disabled={tableAction === "approve" || tableAction === "reject"}
+                    className="h-9 px-4 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <MonitorCheck className="w-4 h-4" />
+                    View Availability
+                  </Button>
+                  <Button
+                    onClick={() => handleOrderAction("reject")}
+                    disabled={tableAction === "approve" || tableAction === "reject"}
+                    className="h-9 px-4 text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ThumbsDown className="w-4 h-4" />
+                    Reject
+                  </Button>
+                  <Button
+                    onClick={() => handleOrderAction("hold")}
+                    disabled={tableAction === "approve" || tableAction === "reject"}
+                    className="h-9 px-4 text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <PauseCircle className="w-4 h-4" />
+                    Hold
+                  </Button>
+                  <Button
+                    onClick={() => handleOrderAction("approve")}
+                    disabled={tableAction === "approve" || tableAction === "reject"}
+                    className="h-9 px-4 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ThumbsUp className="w-4 h-4" />
+                    Approve
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
