@@ -122,6 +122,128 @@ function ViewAttributesDialog({ open, onOpenChange, pkg }) {
   );
 }
 
+/*  ─── Resource Availability Dialog ──────────────────────── */
+const RESOURCE_AVAILABILITY = [
+  { type: "vCPU", unit: "Cores", required: 4, available: 12, status: "available" },
+  { type: "Memory", unit: "GB", required: 8, available: 4, status: "partial" },
+  { type: "SSD Storage", unit: "GB", required: 100, available: 100, status: "available" },
+  { type: "HDD Storage", unit: "GB", required: 200, available: 0, status: "unavailable" },
+  { type: "Public IP", unit: "IPs", required: 1, available: 0, status: "unavailable" },
+  { type: "Network Bandwidth", unit: "Gbps", required: 1, available: 10, status: "available" },
+];
+
+function ResourceAvailabilityDialog({ open, onOpenChange }) {
+  const summary = {
+    available: RESOURCE_AVAILABILITY.filter((r) => r.status === "available").length,
+    partial: RESOURCE_AVAILABILITY.filter((r) => r.status === "partial").length,
+    unavailable: RESOURCE_AVAILABILITY.filter((r) => r.status === "unavailable").length,
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden">
+        {/* Header */}
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border/60 bg-slate-50/60">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <MonitorCheck className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <DialogTitle className="text-base font-bold text-foreground">
+                Resource Availability
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Live availability check for all requested packages in this order
+              </p>
+            </div>
+          </div>
+          {/* Summary pills */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <CheckCircle2 className="w-3.5 h-3.5" /> {summary.available} Available
+            </span>
+            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              <PauseCircle className="w-3.5 h-3.5" /> {summary.partial} Partial
+            </span>
+            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+              <XCircle className="w-3.5 h-3.5" /> {summary.unavailable} Not Available
+            </span>
+          </div>
+        </DialogHeader>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-white bg-primary uppercase font-bold tracking-wider">
+              <tr>
+                <th className="px-5 py-3.5">Resource Type</th>
+                <th className="px-5 py-3.5 text-center">Unit</th>
+                <th className="px-5 py-3.5 text-center">Required Qty</th>
+                <th className="px-5 py-3.5 text-center">Available Qty</th>
+                <th className="px-5 py-3.5 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {RESOURCE_AVAILABILITY.map((row, i) => (
+                <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="px-5 py-3.5 font-semibold text-slate-800">{row.type}</td>
+                  <td className="px-5 py-3.5 text-center text-xs text-slate-500 font-medium">
+                    {row.unit}
+                  </td>
+                  <td className="px-5 py-3.5 text-center font-bold text-slate-700">
+                    {row.required}
+                  </td>
+                  <td
+                    className={`px-5 py-3.5 text-center font-bold ${
+                      row.available >= row.required
+                        ? "text-emerald-600"
+                        : row.available > 0
+                          ? "text-amber-600"
+                          : "text-rose-500"
+                    }`}
+                  >
+                    {row.available}
+                  </td>
+                  <td className="px-5 py-3.5 text-center">
+                    {row.status === "available" && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Available
+                      </span>
+                    )}
+                    {row.status === "partial" && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+                        <PauseCircle className="w-3.5 h-3.5" /> Partial
+                      </span>
+                    )}
+                    {row.status === "unavailable" && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap">
+                        <XCircle className="w-3.5 h-3.5" /> Not Available
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-border/60 bg-slate-50/60 flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            Last checked: {new Date().toLocaleString("en-BD", { dateStyle: "medium", timeStyle: "short" })}
+          </p>
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-9"
+          >
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /*  ─── Mock data ─────────────────────────────────────────── */
 const CHANGE_PACKAGE_ROWS = [
   {
@@ -431,6 +553,7 @@ export default function OrderDetailPage() {
   const [activationTime, setActivationTime] = useState("00:00");
   const [activated, setActivated] = useState(false);
   const [tableAction, setTableAction] = useState(null);
+  const [availabilityOpen, setAvailabilityOpen] = useState(false);
   const { toast } = useToast();
 
   function handleOrderAction(action) {
@@ -837,7 +960,7 @@ export default function OrderDetailPage() {
                 )}
                 <div className="flex flex-wrap items-center justify-end gap-2.5">
                   <Button
-                    onClick={() => handleOrderAction("viewAvailability")}
+                    onClick={() => setAvailabilityOpen(true)}
                     disabled={tableAction === "approve" || tableAction === "reject"}
                     className="h-9 px-4 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -875,6 +998,7 @@ export default function OrderDetailPage() {
         </div>
       </div>
       <ViewAttributesDialog open={attrOpen} onOpenChange={setAttrOpen} pkg={attrPkg} />
+      <ResourceAvailabilityDialog open={availabilityOpen} onOpenChange={setAvailabilityOpen} />
     </>
   );
 }
