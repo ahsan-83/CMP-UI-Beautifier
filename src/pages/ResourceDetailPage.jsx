@@ -39,6 +39,8 @@ import {
   Clock,
   CheckCircle2,
   Server,
+  TrendingUp,
+  PowerOff,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -409,6 +411,133 @@ function ChangePackageDialog({ open, onOpenChange }) {
   );
 }
 
+/*  ─── Upgrade Package Dialog ──────────────────────────────── */
+const UPGRADE_PACKAGES = [
+  { value: "basic", label: "Basic — 2 vCPU, 4 GB RAM, 100 GB Storage" },
+  { value: "standard", label: "Standard — 4 vCPU, 8 GB RAM, 200 GB Storage" },
+  { value: "advanced", label: "Advanced — 4 vCPU, 12 GB RAM, 300 GB Storage" },
+  { value: "enterprise", label: "Enterprise — 8 vCPU, 32 GB RAM, 1 TB Storage" },
+];
+
+function UpgradePackageDialog({ open, onOpenChange }) {
+  const { toast } = useToast();
+  const [packageType, setPackageType] = useState("");
+
+  const handleConfirm = () => {
+    if (!packageType) return;
+    const label = UPGRADE_PACKAGES.find((p) => p.value === packageType)?.label || packageType;
+    onOpenChange(false);
+    setPackageType("");
+    toast({
+      title: "Upgrade Request Submitted",
+      description: `Package upgrade request to "${label.split(" — ")[0]}" has been submitted successfully.`,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden rounded-xl">
+        {/* Header */}
+        <DialogHeader className="bg-primary px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/15 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-white text-lg font-bold leading-tight">
+                Select New Package
+              </DialogTitle>
+              <p className="text-blue-100 text-xs mt-0.5">
+                Choose a package to upgrade this resource
+              </p>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {/* Body */}
+        <div className="px-6 py-6 bg-white space-y-5">
+          {/* Current package info strip */}
+          <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-slate-50 border border-slate-200">
+            <Package className="w-4 h-4 text-slate-400 shrink-0" />
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Current Package</p>
+              <p className="text-sm font-bold text-slate-800">
+                Advanced — 4 vCPU, 12 GB RAM, 300 GB Storage
+              </p>
+            </div>
+          </div>
+
+          {/* Package selector */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-slate-700">
+              Select Package Type <span className="text-rose-500">*</span>
+            </Label>
+            <Select value={packageType} onValueChange={setPackageType}>
+              <SelectTrigger className="w-full bg-white border-slate-300 focus:ring-primary/30 h-11">
+                <SelectValue placeholder="Select Package Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {UPGRADE_PACKAGES.map((pkg) => (
+                  <SelectItem
+                    key={pkg.value}
+                    value={pkg.value}
+                    disabled={pkg.value === "advanced"}
+                  >
+                    <span className="flex items-center gap-2">
+                      {pkg.value === "advanced" && (
+                        <span className="text-xs text-muted-foreground">(Current)</span>
+                      )}
+                      {pkg.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!packageType && (
+              <p className="text-xs text-amber-600 font-medium">
+                * Please select a package type to continue
+              </p>
+            )}
+          </div>
+
+          {/* Upgrade preview */}
+          {packageType && packageType !== "advanced" && (
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-200">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-emerald-800">
+                <p className="font-bold mb-0.5">Upgrade Preview</p>
+                <p>{UPGRADE_PACKAGES.find((p) => p.value === packageType)?.label}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <DialogFooter className="px-6 py-4 border-t border-border/60 bg-slate-50/60 flex justify-end gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setPackageType("");
+              onOpenChange(false);
+            }}
+            className="font-semibold"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            disabled={!packageType || packageType === "advanced"}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <TrendingUp className="w-4 h-4" />
+            Confirm Upgrade
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /*  ─── VPS Attributes Tree ───────────────────────────────── */
 const VPS_ATTR_TREE = [
   {
@@ -492,6 +621,7 @@ function VpsAttributeTree() {
 export default function ResourceDetailPage() {
   const [changePackageOpen, setChangePackageOpen] = useState(false);
   const [attrHistoryOpen, setAttrHistoryOpen] = useState(false);
+  const [upgradePackageOpen, setUpgradePackageOpen] = useState(false);
 
   // VPS Action section state
   const [privateIP, setPrivateIP] = useState("");
@@ -755,6 +885,27 @@ export default function ResourceDetailPage() {
                       </Button>
                     )}
                   </div>
+
+                  {/* Package action buttons */}
+                  <div className="border-t border-border/50 pt-4 flex flex-col gap-2.5">
+                    <Button
+                      onClick={() => setUpgradePackageOpen(true)}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 rounded-lg shadow-sm gap-2"
+                    >
+                      <TrendingUp className="w-4 h-4" /> Upgrade Package
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        toast({
+                          title: "Deactivation Requested",
+                          description: "Package deactivation request has been submitted.",
+                        });
+                      }}
+                      className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold h-10 rounded-lg shadow-sm gap-2"
+                    >
+                      <PowerOff className="w-4 h-4" /> Deactivate Package
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -880,6 +1031,7 @@ export default function ResourceDetailPage() {
       </div>
       <ChangePackageDialog open={changePackageOpen} onOpenChange={setChangePackageOpen} />
       <AttributeHistoryDialog open={attrHistoryOpen} onOpenChange={setAttrHistoryOpen} />
+      <UpgradePackageDialog open={upgradePackageOpen} onOpenChange={setUpgradePackageOpen} />
     </>
   );
 }
