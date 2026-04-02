@@ -765,9 +765,9 @@ export default function InventoryListPage() {
                   ].map(({ icon: Icon, label }) => (
                     <th
                       key={label}
-                      className="text-left px-6 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap"
+                      className="text-center px-6 py-3.5 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap"
                     >
-                      <span className="flex items-center gap-1.5">
+                      <span className="flex items-center justify-center gap-1.5">
                         <Icon className="w-3.5 h-3.5" /> {label}
                       </span>
                     </th>
@@ -791,8 +791,8 @@ export default function InventoryListPage() {
                         key={row.id}
                         className={`transition-colors hover:bg-slate-50/60 ${i % 2 === 0 ? "" : "bg-slate-50/20"}`}
                       >
-                        <td className="px-6 py-3.5">
-                          <div className="flex items-center gap-2.5">
+                        <td className="px-6 py-3.5 text-center">
+                          <div className="flex items-center justify-center gap-2.5">
                             <div className={`p-1.5 rounded-lg border ${meta.bg} ${meta.border}`}>
                               <Icon className={`w-3.5 h-3.5 ${meta.text}`} />
                             </div>
@@ -801,20 +801,22 @@ export default function InventoryListPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-3.5">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs font-bold px-2.5 ${platformBadge(row.platformType)}`}
-                          >
-                            {row.platformType}
-                          </Badge>
+                        <td className="px-6 py-3.5 text-center">
+                          <div className="flex justify-center">
+                            <Badge
+                              variant="outline"
+                              className={`text-xs font-bold px-2.5 ${platformBadge(row.platformType)}`}
+                            >
+                              {row.platformType}
+                            </Badge>
+                          </div>
                         </td>
-                        <td className="px-6 py-3.5">
+                        <td className="px-6 py-3.5 text-center">
                           <span className="font-mono font-bold text-foreground text-sm">
                             {row.quantity.toLocaleString()}
                           </span>
                         </td>
-                        <td className="px-6 py-3.5">
+                        <td className="px-6 py-3.5 text-center">
                           {row.unit ? (
                             <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                               {row.unit}
@@ -823,7 +825,7 @@ export default function InventoryListPage() {
                             <span className="text-slate-300 text-xs">—</span>
                           )}
                         </td>
-                        <td className="px-6 py-3.5">
+                        <td className="px-6 py-3.5 text-center">
                           <Button
                             size="sm"
                             onClick={() => {
