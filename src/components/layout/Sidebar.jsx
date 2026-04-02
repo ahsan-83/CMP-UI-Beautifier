@@ -12,6 +12,7 @@ import {
   Menu,
   Users,
   Package,
+  PieChart,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 const menuItems = [
@@ -19,6 +20,11 @@ const menuItems = [
     icon: LayoutDashboard,
     label: "Dashboard",
     href: "/dashboard",
+  },
+  {
+    icon: PieChart,
+    label: "Customer Manager",
+    href: "/customer-manager",
   },
   {
     icon: Users,
