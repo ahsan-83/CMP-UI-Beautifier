@@ -402,9 +402,9 @@ function InventoryDetailsDialog({ item, open, onOpenChange }) {
                       ].map(({ icon: HIcon, label }) => (
                         <th
                           key={label}
-                          className="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap"
+                          className="text-center px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap"
                         >
-                          <span className="flex items-center gap-1.5">
+                          <span className="flex items-center justify-center gap-1.5">
                             <HIcon className="w-3.5 h-3.5" /> {label}
                           </span>
                         </th>
@@ -420,35 +420,37 @@ function InventoryDetailsDialog({ item, open, onOpenChange }) {
                           key={row.id}
                           className={`hover:bg-slate-50/60 transition-colors ${i % 2 === 0 ? "" : "bg-slate-50/20"}`}
                         >
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 text-center">
                             <span className="font-mono font-bold text-slate-700 text-sm">
                               {row.txId}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5">
-                            <Badge
-                              variant="outline"
-                              className={`text-xs font-semibold flex items-center gap-1 w-fit border ${ts.cls}`}
-                            >
-                              <TxIcon className={`w-3 h-3 ${ts.iconCls}`} />
-                              {row.transaction}
-                            </Badge>
+                          <td className="px-5 py-3.5 text-center">
+                            <div className="flex justify-center">
+                              <Badge
+                                variant="outline"
+                                className={`text-xs font-semibold flex items-center gap-1 w-fit border ${ts.cls}`}
+                              >
+                                <TxIcon className={`w-3 h-3 ${ts.iconCls}`} />
+                                {row.transaction}
+                              </Badge>
+                            </div>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 text-center">
                             <span className="font-mono font-semibold text-foreground">
                               {row.quantity}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 text-center">
                             <span className="font-mono font-bold text-foreground">
                               {row.balance.toLocaleString()}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 text-center">
                             <p className="font-medium text-foreground text-sm">{row.actionBy}</p>
                             <p className="text-xs text-muted-foreground">ID: {row.actionById}</p>
                           </td>
-                          <td className="px-5 py-3.5 whitespace-nowrap">
+                          <td className="px-5 py-3.5 text-center whitespace-nowrap">
                             <span className="text-sm text-slate-600">{row.time}</span>
                           </td>
                         </tr>
