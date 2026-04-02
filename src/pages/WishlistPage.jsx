@@ -29,6 +29,8 @@ import {
   ShoppingCart,
   BarChart2,
   Heart,
+  CheckCircle2,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
@@ -221,8 +223,74 @@ function RemoveDialog({ open, onOpenChange, onConfirm }) {
   );
 }
 
+/*  ─── Order Confirmation Dialog ───────────────────────── */
+function OrderConfirmationDialog({ open, onOpenChange, orderNo }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md p-0 gap-0 overflow-hidden rounded-xl">
+        {/* Header */}
+        <DialogHeader className="bg-primary px-6 py-4">
+          <DialogTitle className="text-white text-lg font-bold">Order Confirmation</DialogTitle>
+        </DialogHeader>
+
+        {/* Body */}
+        <div className="px-8 py-10 bg-white flex flex-col items-center text-center gap-5">
+          {/* Success icon */}
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full bg-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-200">
+              <Check className="w-10 h-10 text-white stroke-[3]" />
+            </div>
+            <div className="absolute -inset-1.5 rounded-full border-4 border-emerald-100 opacity-60 animate-ping" />
+          </div>
+
+          {/* Title */}
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-primary">Order Submitted Successfully</h2>
+            <p className="text-sm text-muted-foreground">
+              Your order has been received and is now being processed.
+            </p>
+          </div>
+
+          {/* Order number */}
+          <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-4 flex flex-col items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              Order Reference
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-600 font-medium">Order No:</span>
+              <a
+                href={`/orders/${orderNo}`}
+                className="text-sm font-bold text-emerald-600 hover:text-emerald-700 underline underline-offset-2 flex items-center gap-1 transition-colors"
+              >
+                {orderNo}
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Info note */}
+          <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+            You will receive a confirmation notification once the order is reviewed and approved by
+            the RAJUK team.
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-border/60 bg-slate-50/60 flex justify-end">
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-9"
+          >
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /*  ─── Checkout Dialog ─────────────────────────────────── */
-function CheckoutDialog({ open, onOpenChange }) {
+function CheckoutDialog({ open, onOpenChange, onOrderConfirmed }) {
   const { toast } = useToast();
   const [approvalFile, setApprovalFile] = useState(null);
   const SELECTED = [
@@ -239,12 +307,17 @@ function CheckoutDialog({ open, onOpenChange }) {
   ];
   const subtotal = 1000;
   const totalAmount = 1050;
+  function generateOrderNo() {
+    const today = new Date();
+    const ymd = today.toISOString().slice(0, 10).replace(/-/g, "");
+    const seq = String(Math.floor(200 + Math.random() * 300)).padStart(3, "0");
+    return `${ymd}-NDC-00075-${seq}`;
+  }
+
   const handleConfirm = () => {
+    const orderNo = generateOrderNo();
     onOpenChange(false);
-    toast({
-      title: "Order Confirmed!",
-      description: "Your order has been placed successfully.",
-    });
+    onOrderConfirmed(orderNo);
   };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -385,6 +458,14 @@ export default function WishlistPage() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [pricingOpen, setPricingOpen] = useState(false);
   const [removeOpen, setRemoveOpen] = useState(false);
+  const [orderConfirmOpen, setOrderConfirmOpen] = useState(false);
+  const [confirmedOrderNo, setConfirmedOrderNo] = useState("");
+
+  const handleOrderConfirmed = (orderNo) => {
+    setConfirmedOrderNo(orderNo);
+    setOrderConfirmOpen(true);
+  };
+
   const handleRemoveConfirm = () => {
     toast({
       title: "Item removed",
@@ -610,12 +691,21 @@ export default function WishlistPage() {
           </div>
         </div>
       </div>
-      <CheckoutDialog open={checkoutOpen} onOpenChange={setCheckoutOpen} />
+      <CheckoutDialog
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        onOrderConfirmed={handleOrderConfirmed}
+      />
       <EmailPricingDialog open={pricingOpen} onOpenChange={setPricingOpen} />
       <RemoveDialog
         open={removeOpen}
         onOpenChange={setRemoveOpen}
         onConfirm={handleRemoveConfirm}
+      />
+      <OrderConfirmationDialog
+        open={orderConfirmOpen}
+        onOpenChange={setOrderConfirmOpen}
+        orderNo={confirmedOrderNo}
       />
     </>
   );
