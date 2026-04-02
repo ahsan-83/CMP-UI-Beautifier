@@ -13,6 +13,7 @@ import {
   Users,
   Package,
   PieChart,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 const menuItems = [
@@ -20,6 +21,11 @@ const menuItems = [
     icon: LayoutDashboard,
     label: "Dashboard",
     href: "/dashboard",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Admin Dashboard",
+    href: "/admin",
   },
   {
     icon: PieChart,
