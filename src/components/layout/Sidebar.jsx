@@ -14,6 +14,7 @@ import {
   Package,
   PieChart,
   ShieldCheck,
+  UserCheck,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 const menuItems = [
@@ -36,6 +37,11 @@ const menuItems = [
     icon: Users,
     label: "Customers",
     href: "/customers",
+  },
+  {
+    icon: UserCheck,
+    label: "Pending Customers",
+    href: "/pending-customers",
   },
   {
     icon: FileText,

@@ -20,6 +20,7 @@ import CustomerListPage from "./pages/CustomerListPage";
 import InventoryListPage from "./pages/InventoryListPage";
 import CustomerManagerDashboard from "./pages/CustomerManagerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import PendingCustomerPage from "./pages/PendingCustomerPage";
 import NotFound from "./pages/not-found";
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ function DashboardRouter() {
         <Route path="/inventory" component={InventoryListPage} />
         <Route path="/customer-manager" component={CustomerManagerDashboard} />
         <Route path="/admin" component={AdminDashboard} />
+        <Route path="/pending-customers" component={PendingCustomerPage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
