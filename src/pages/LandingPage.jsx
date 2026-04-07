@@ -16,6 +16,12 @@ import {
   ChevronRight,
   Menu,
   X,
+  Cpu,
+  Network,
+  HardDrive,
+  Wifi,
+  Database,
+  ShieldCheck,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -361,8 +367,47 @@ export default function LandingPage() {
               transition={{ duration: 0.6 }}
               className="flex-1 flex justify-center"
             >
-              <div className="w-56 h-44 bg-blue-100 rounded-2xl flex items-center justify-center border border-blue-200 shadow-inner">
-                <Monitor className="w-24 h-24 text-blue-400" />
+              <div className="w-64 bg-gradient-to-br from-blue-50 to-slate-100 rounded-2xl border border-blue-200 shadow-inner p-5 flex flex-col gap-3">
+                {/* Row 1 — Servers */}
+                <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-blue-100 shadow-sm">
+                  <Server className="w-6 h-6 text-blue-600 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-700 leading-none">Rack Server</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">TIER-3 Certified</p>
+                  </div>
+                  <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                </div>
+                {/* Row 2 — Network */}
+                <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-teal-100 shadow-sm">
+                  <Network className="w-6 h-6 text-teal-600 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-700 leading-none">Core Network</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Redundant Links</p>
+                  </div>
+                  <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                </div>
+                {/* Row 3 — Storage */}
+                <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-2.5 border border-indigo-100 shadow-sm">
+                  <HardDrive className="w-6 h-6 text-indigo-500 shrink-0" />
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-700 leading-none">Storage Array</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Petabyte Scale</p>
+                  </div>
+                  <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                </div>
+                {/* Bottom mini-icons */}
+                <div className="flex justify-around pt-1">
+                  {[
+                    { icon: Cpu, color: "text-blue-500", bg: "bg-blue-50" },
+                    { icon: Database, color: "text-teal-500", bg: "bg-teal-50" },
+                    { icon: Wifi, color: "text-indigo-500", bg: "bg-indigo-50" },
+                    { icon: ShieldCheck, color: "text-emerald-500", bg: "bg-emerald-50" },
+                  ].map(({ icon: Icon, color, bg }, i) => (
+                    <div key={i} className={`${bg} p-2 rounded-lg border border-white shadow-sm`}>
+                      <Icon className={`w-4 h-4 ${color}`} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </motion.div>
 
@@ -376,20 +421,20 @@ export default function LandingPage() {
               {[
                 {
                   icon: Server,
-                  title: "Super Computer facility",
+                  title: "Super Computer Facility",
                   desc: "Bangladesh's First TIER-3 Certified Data Center",
                   color: "text-blue-600 bg-blue-100",
                 },
                 {
-                  icon: Settings,
-                  title: "Management",
-                  desc: "Managed by Certified Engineers",
+                  icon: Network,
+                  title: "High-Speed Network",
+                  desc: "Redundant fiber links with enterprise-grade routing",
                   color: "text-teal-600 bg-teal-100",
                 },
                 {
-                  icon: Monitor,
-                  title: "Monitor",
-                  desc: "24/7 monitored by BGD e-GOV CIRT Team.",
+                  icon: Cpu,
+                  title: "24/7 Monitoring",
+                  desc: "Round-the-clock oversight by BGD e-GOV CIRT Team",
                   color: "text-purple-600 bg-purple-100",
                 },
               ].map((item, i) => (
