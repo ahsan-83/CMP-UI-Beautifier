@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   UserPlus,
@@ -22,6 +22,8 @@ import {
   Wifi,
   Database,
   ShieldCheck,
+  ChevronDown,
+  BookOpen,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -31,7 +33,14 @@ const NAV_LINKS = [
   { label: "Services", href: "#services" },
   { label: "Cost Estimator", href: "#cost-estimator" },
   { label: "Forms & Agreements", href: "#forms" },
-  { label: "User Manuals", href: "#manuals" },
+  {
+    label: "User Manuals",
+    dropdown: true,
+    items: [
+      { label: "User Registration Manual", icon: BookOpen, href: "#user-reg-manual" },
+      { label: "Frame Agreement E-Sign Manual", icon: FileSignature, href: "#esign-manual" },
+    ],
+  },
   { label: "Support", href: "#support" },
 ];
 
@@ -133,6 +142,18 @@ const fadeUp = {
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [manualsOpen, setManualsOpen] = useState(false);
+  const manualsRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (manualsRef.current && !manualsRef.current.contains(e.target)) {
+        setManualsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800">
@@ -149,15 +170,52 @@ export default function LandingPage() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
-              >
-                {link.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.dropdown ? (
+                <div key={link.label} className="relative" ref={manualsRef}>
+                  <button
+                    onClick={() => setManualsOpen((o) => !o)}
+                    className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                      manualsOpen
+                        ? "text-blue-700 bg-blue-50"
+                        : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
+                    }`}
+                  >
+                    {link.label}
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${manualsOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {manualsOpen && (
+                    <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl border border-slate-200 shadow-lg py-1.5 z-50">
+                      <p className="px-4 pt-1 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        User Manuals
+                      </p>
+                      {link.items.map((item) => (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          onClick={() => setManualsOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                        >
+                          <item.icon className="w-4 h-4 text-blue-500 shrink-0" />
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
@@ -184,16 +242,35 @@ export default function LandingPage() {
         {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-1">
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="block px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </a>
-            ))}
+            {NAV_LINKS.map((link) =>
+              link.dropdown ? (
+                <div key={link.label}>
+                  <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    {link.label}
+                  </p>
+                  {link.items.map((item) => (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg"
+                    >
+                      <item.icon className="w-4 h-4 text-blue-500 shrink-0" />
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="block px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              )
+            )}
             <div className="flex gap-2 pt-2">
               <Link href="/register" className="flex-1">
                 <button className="w-full py-2 text-sm font-semibold text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-50">
