@@ -217,64 +217,128 @@ function Step1({ data, onChange }) {
   }
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Project Info */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-base font-bold text-slate-800 mb-3">Project Info</h3>
-        <InfoBanner>
-          Provide Project Info with Ministry, Organization, Service Name and Web URL.
-        </InfoBanner>
-        <div className="space-y-4">
-          <div>
-            <Label required>Ministry / Division name</Label>
-            <SelectInput
-              placeholder="Select Ministry / Division"
-              options={MINISTRIES}
-              value={data.ministryDivision || ""}
-              onChange={(e) => onChange("ministryDivision", e.target.value)}
-            />
-          </div>
-          <div>
-            <Label required>Organization Name</Label>
-            <SelectInput
-              placeholder="Select Organization"
-              options={ORGANIZATIONS}
-              value={data.organizationName || ""}
-              onChange={(e) => onChange("organizationName", e.target.value)}
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <Label>Project Name</Label>
-              <div className="group relative">
-                <Info className="w-3.5 h-3.5 text-blue-400 cursor-help mb-1" />
-                <div className="absolute bottom-5 left-0 w-48 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
-                  The name of your project within the organization
+      {/* ── Left column: Project Info + Organization Manager ── */}
+      <div className="flex flex-col gap-6">
+
+        {/* Project Info */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h3 className="text-base font-bold text-slate-800 mb-3">Project Info</h3>
+          <InfoBanner>
+            Provide Project Info with Ministry, Organization, Service Name and Web URL.
+          </InfoBanner>
+          <div className="space-y-4">
+            <div>
+              <Label required>Ministry / Division name</Label>
+              <SelectInput
+                placeholder="Select Ministry / Division"
+                options={MINISTRIES}
+                value={data.ministryDivision || ""}
+                onChange={(e) => onChange("ministryDivision", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label required>Organization Name</Label>
+              <SelectInput
+                placeholder="Select Organization"
+                options={ORGANIZATIONS}
+                value={data.organizationName || ""}
+                onChange={(e) => onChange("organizationName", e.target.value)}
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <Label>Project Name</Label>
+                <div className="group relative">
+                  <Info className="w-3.5 h-3.5 text-blue-400 cursor-help mb-1" />
+                  <div className="absolute bottom-5 left-0 w-48 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
+                    The name of your project within the organization
+                  </div>
                 </div>
               </div>
+              <Input placeholder="Project Name" {...f("projectName")} />
             </div>
-            <Input placeholder="Project Name" {...f("projectName")} />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <Label required>Service Name</Label>
-              <div className="group relative">
-                <Info className="w-3.5 h-3.5 text-blue-400 cursor-help mb-1" />
-                <div className="absolute bottom-5 left-0 w-48 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
-                  The name of the cloud service you are registering for
+            <div>
+              <div className="flex items-center gap-1.5 mb-1">
+                <Label required>Service Name</Label>
+                <div className="group relative">
+                  <Info className="w-3.5 h-3.5 text-blue-400 cursor-help mb-1" />
+                  <div className="absolute bottom-5 left-0 w-48 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
+                    The name of the cloud service you are registering for
+                  </div>
                 </div>
               </div>
+              <Input placeholder="Service Name" {...f("serviceName")} />
             </div>
-            <Input placeholder="Service Name" {...f("serviceName")} />
+            <div>
+              <Label required>Organization Website</Label>
+              <Input placeholder="Organization web URL" type="url" {...f("orgWebsite")} />
+            </div>
           </div>
-          <div>
-            <Label required>Organization Website</Label>
-            <Input placeholder="Organization web URL" type="url" {...f("orgWebsite")} />
+        </div>
+
+        {/* Organization Manager */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-bold text-slate-800">Organization Manager</h3>
+            <button
+              type="button"
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors whitespace-nowrap"
+            >
+              Use Existing Manager
+            </button>
+          </div>
+
+          <div className="flex items-start gap-2.5 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-5">
+            <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+            <p className="text-sm text-blue-700 leading-relaxed">
+              The Organization Manager is entrusted with the responsibility of monitoring, managing,
+              and allocating system users across various services within the same organization. You
+              have the option to select from the existing managers within your organization or create
+              a new manager account. Please note that in the event of unavailability of any manager
+              account, you may provide relevant technical user information for completion of this
+              section.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label required>First Name</Label>
+              <Input placeholder="First name" {...f("mgrFirstName")} />
+            </div>
+            <div>
+              <Label>Last Name</Label>
+              <Input placeholder="Last name" {...f("mgrLastName")} />
+            </div>
+            <div>
+              <Label required>Designation</Label>
+              <Input placeholder="Designation" {...f("mgrDesignation")} />
+            </div>
+            <div>
+              <Label required>Email</Label>
+              <Input type="email" placeholder="Email" {...f("mgrEmail")} />
+            </div>
+            <div>
+              <Label>Phone (Official)</Label>
+              <PhoneInput
+                placeholder="(at least phone/mobile is required)"
+                value={data.mgrPhone || ""}
+                onChange={(e) => onChange("mgrPhone", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Mobile number</Label>
+              <PhoneInput
+                placeholder="(at least phone/mobile is required)"
+                value={data.mgrMobile || ""}
+                onChange={(e) => onChange("mgrMobile", e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Project/Service Owner */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      {/* ── Right column: Project/Service Owner ── */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 self-start">
         <h3 className="text-base font-bold text-slate-800 mb-3">Project / Service Owner</h3>
         <InfoBanner>
           Provide Project / Service Owner Information with Name, Designation, Email and Phone Number.
@@ -298,11 +362,19 @@ function Step1({ data, onChange }) {
           </div>
           <div>
             <Label required>Phone (Official)</Label>
-            <PhoneInput placeholder="Phone number" value={data.ownerPhone || ""} onChange={(e) => onChange("ownerPhone", e.target.value)} />
+            <PhoneInput
+              placeholder="Phone number"
+              value={data.ownerPhone || ""}
+              onChange={(e) => onChange("ownerPhone", e.target.value)}
+            />
           </div>
           <div>
             <Label>Mobile number</Label>
-            <PhoneInput placeholder="Phone number" value={data.ownerMobile || ""} onChange={(e) => onChange("ownerMobile", e.target.value)} />
+            <PhoneInput
+              placeholder="Phone number"
+              value={data.ownerMobile || ""}
+              onChange={(e) => onChange("ownerMobile", e.target.value)}
+            />
           </div>
         </div>
       </div>
