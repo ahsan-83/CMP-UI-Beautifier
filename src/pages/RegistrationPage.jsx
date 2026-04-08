@@ -591,7 +591,17 @@ export default function RegistrationPage() {
 
   function handleNext() { setCurrentStep((s) => Math.min(s + 1, 4)); }
   function handleBack() { setCurrentStep((s) => Math.max(s - 1, 1)); }
-  function handleSubmit() { navigate("/login"); }
+  function handleSubmit() {
+    const allFormData = {
+      step1_ProjectAndOwnerInfo: step1Data,
+      step2_TechnicalInfo: step2Data,
+      step3_BillingInfo: step3Data,
+      step4_AgreementAndTimeline: step4Data,
+    };
+    console.log("=== Registration Form Submission ===");
+    console.log(JSON.stringify(allFormData, null, 2));
+    navigate("/login");
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-sans text-slate-800">
