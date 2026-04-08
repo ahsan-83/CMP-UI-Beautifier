@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Check, Menu, X, Info, ChevronDown } from "lucide-react";
+import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+} from "../components/ui/dialog";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -572,12 +576,72 @@ function Step4({ data, onChange }) {
   );
 }
 
+/* ── Registration Success Dialog ── */
+
+function RegistrationSuccessDialog({ open, onGoHome }) {
+  return (
+    <Dialog open={open} onOpenChange={() => {}}>
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+        {/* Gradient header strip */}
+        <div className="h-2 w-full bg-gradient-to-r from-emerald-400 via-teal-500 to-blue-500" />
+
+        <div className="px-8 py-10 flex flex-col items-center text-center gap-5">
+          {/* Animated icon */}
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center animate-[pulse_2s_ease-in-out_infinite]">
+              <BadgeCheck className="w-10 h-10 text-emerald-500" strokeWidth={1.5} />
+            </div>
+            {/* Sparkle dots */}
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 border-2 border-white" />
+            <span className="absolute bottom-0 -left-1 w-3 h-3 rounded-full bg-teal-400 border-2 border-white" />
+          </div>
+
+          {/* Title */}
+          <div>
+            <h2 className="text-2xl font-extrabold text-emerald-600 tracking-tight">
+              Successfully Requested !!!
+            </h2>
+          </div>
+
+          {/* Body text */}
+          <p className="text-sm text-slate-600 leading-relaxed max-w-xs">
+            Your registration request is successful. Your status is now{" "}
+            <span className="font-bold text-amber-600 inline-flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" /> PENDING
+            </span>{" "}
+            for Primary Approval from administrator.
+          </p>
+
+          {/* Info box */}
+          <div className="w-full bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-xs text-blue-700 text-left flex items-start gap-2">
+            <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-500" />
+            <span>
+              You will receive an email notification once your account has been reviewed and
+              approved by the administrator.
+            </span>
+          </div>
+
+          {/* CTA */}
+          <button
+            onClick={onGoHome}
+            className="mt-1 flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary/90 rounded-xl shadow-sm transition-all"
+          >
+            <Home className="w-4 h-4" />
+            Go to Home
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ── Main Registration Page ── */
 
 export default function RegistrationPage() {
   const [, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [step1Data, setStep1Data] = useState({});
   const [step2Data, setStep2Data] = useState({});
@@ -600,7 +664,7 @@ export default function RegistrationPage() {
     };
     console.log("=== Registration Form Submission ===");
     console.log(JSON.stringify(allFormData, null, 2));
-    navigate("/login");
+    setShowSuccess(true);
   }
 
   return (
@@ -751,6 +815,14 @@ export default function RegistrationPage() {
           </div>
         </div>
       </main>
+
+      <RegistrationSuccessDialog
+        open={showSuccess}
+        onGoHome={() => {
+          setShowSuccess(false);
+          navigate("/");
+        }}
+      />
     </div>
   );
 }
