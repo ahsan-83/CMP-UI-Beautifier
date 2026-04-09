@@ -812,41 +812,47 @@ export default function RegistrationPage() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition shadow-sm disabled:opacity-80 disabled:cursor-not-allowed flex items-center gap-2.5 min-w-[110px] justify-center"
+                  className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {submitting ? (
-                    <>
-                      <svg
-                        className="w-4 h-4 animate-spin text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                        />
-                      </svg>
-                      Submitting…
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
+                  Submit
                 </button>
               )}
             </div>
           </div>
         </div>
       </main>
+
+      {/* ── Full-page submitting overlay ── */}
+      {submitting && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-5">
+            {/* Spinning ring */}
+            <svg
+              className="w-16 h-16 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-20"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="#1d4ed8"
+                strokeWidth="3"
+              />
+              <path
+                className="opacity-90"
+                fill="#1d4ed8"
+                d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"
+              />
+            </svg>
+            <p className="text-sm font-semibold text-blue-700 tracking-wide">
+              Submitting your registration…
+            </p>
+          </div>
+        </div>
+      )}
 
       <RegistrationSuccessDialog
         open={showSuccess}
