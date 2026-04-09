@@ -642,6 +642,7 @@ export default function RegistrationPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [step1Data, setStep1Data] = useState({});
   const [step2Data, setStep2Data] = useState({});
@@ -664,7 +665,11 @@ export default function RegistrationPage() {
     };
     console.log("=== Registration Form Submission ===");
     console.log(JSON.stringify(allFormData, null, 2));
-    setShowSuccess(true);
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setShowSuccess(true);
+    }, 1000);
   }
 
   return (
@@ -806,9 +811,36 @@ export default function RegistrationPage() {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition shadow-sm"
+                  disabled={submitting}
+                  className="px-6 py-2.5 text-sm font-semibold text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition shadow-sm disabled:opacity-80 disabled:cursor-not-allowed flex items-center gap-2.5 min-w-[110px] justify-center"
                 >
-                  Submit
+                  {submitting ? (
+                    <>
+                      <svg
+                        className="w-4 h-4 animate-spin text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        />
+                      </svg>
+                      Submitting…
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
                 </button>
               )}
             </div>
