@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus, ChevronRight } from "lucide-react";
+import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -137,61 +137,30 @@ function InfoBanner({ children }) {
   );
 }
 
-/* ── Person Picker dropdown ── */
+/* ── Account Select (select-style person picker) ── */
 
-function PersonPicker({ open, people, onSelect, onAddNew, addNewLabel, onClose }) {
-  if (!open) return null;
+function AccountSelect({ people, placeholder, value, onChange }) {
   return (
-    <div className="mb-5 rounded-xl border border-blue-200 bg-white shadow-md overflow-hidden">
-      <div className="px-4 py-2.5 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
-        <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Select Existing</span>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
-        >
-          ✕ Close
-        </button>
-      </div>
-      <div className="divide-y divide-slate-100 max-h-56 overflow-y-auto">
-        {people.map((person, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => { onSelect(person); onClose(); }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors group"
-          >
-            <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-sm font-bold text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-              {person.firstName[0]}{person.lastName[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800 truncate">
-                {person.firstName} {person.lastName}
-              </p>
-              <p className="text-xs text-slate-500 truncate">
-                {person.designation} · {person.email}
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors shrink-0" />
-          </button>
+    <div className="relative">
+      <select
+        value={value}
+        onChange={onChange}
+        className="w-full px-3 py-2.5 pr-9 text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition appearance-none text-slate-700"
+      >
+        <option value="">{placeholder}</option>
+        {people.map((p, i) => (
+          <option key={i} value={i}>
+            {p.firstName} {p.lastName} - {p.email}
+          </option>
         ))}
-      </div>
-      <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
-        <button
-          type="button"
-          onClick={() => { onAddNew(); onClose(); }}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition w-full justify-center"
-        >
-          <UserPlus className="w-4 h-4" />
-          {addNewLabel}
-        </button>
-      </div>
+      </select>
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
     </div>
   );
 }
 
 function ContactFormGroup({ prefix, data, onChange, title, showUseExisting = false }) {
-  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState("");
 
   function field(name) {
     return {
@@ -200,76 +169,99 @@ function ContactFormGroup({ prefix, data, onChange, title, showUseExisting = fal
     };
   }
 
-  function handleSelectUser(person) {
-    onChange(prefix + "FirstName", person.firstName);
-    onChange(prefix + "LastName", person.lastName);
-    onChange(prefix + "Designation", person.designation);
-    onChange(prefix + "Email", person.email);
-    onChange(prefix + "Phone", person.phone);
-    onChange(prefix + "Mobile", person.mobile);
+  function handleAccountChange(e) {
+    const idx = e.target.value;
+    setSelectedIdx(idx);
+    if (idx !== "") {
+      const person = EXISTING_USERS[parseInt(idx)];
+      onChange(prefix + "FirstName", person.firstName);
+      onChange(prefix + "LastName", person.lastName);
+      onChange(prefix + "Designation", person.designation);
+      onChange(prefix + "Email", person.email);
+      onChange(prefix + "Phone", person.phone);
+      onChange(prefix + "Mobile", person.mobile);
+    } else {
+      onChange(prefix + "FirstName", "");
+      onChange(prefix + "LastName", "");
+      onChange(prefix + "Designation", "");
+      onChange(prefix + "Email", "");
+      onChange(prefix + "Phone", "");
+      onChange(prefix + "Mobile", "");
+    }
   }
 
-  function handleAddNewUser() {
-    onChange(prefix + "FirstName", "");
-    onChange(prefix + "LastName", "");
-    onChange(prefix + "Designation", "");
-    onChange(prefix + "Email", "");
-    onChange(prefix + "Phone", "");
-    onChange(prefix + "Mobile", "");
-  }
+  const hasSelection = selectedIdx !== "";
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-bold text-slate-800">{title}</h3>
-        {showUseExisting && (
-          <button
-            type="button"
-            onClick={() => setPickerOpen((o) => !o)}
-            className={`text-sm font-semibold transition-colors ${
-              pickerOpen ? "text-blue-800 underline" : "text-blue-600 hover:underline"
-            }`}
-          >
-            Use Existing User
-          </button>
-        )}
-      </div>
+      <h3 className="text-base font-bold text-slate-800 mb-4">{title}</h3>
+
       {showUseExisting && (
-        <PersonPicker
-          open={pickerOpen}
-          people={EXISTING_USERS}
-          onSelect={handleSelectUser}
-          onAddNew={handleAddNewUser}
-          addNewLabel="Add New User"
-          onClose={() => setPickerOpen(false)}
-        />
+        <div className="mb-4">
+          <div className="flex items-center gap-1.5 mb-1">
+            <label className="block text-sm font-medium text-slate-700">Account</label>
+            <div className="group relative">
+              <Info className="w-3.5 h-3.5 text-blue-400 cursor-help" />
+              <div className="absolute bottom-5 left-0 w-52 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
+                Select an existing user account or leave blank to create new
+              </div>
+            </div>
+          </div>
+          <AccountSelect
+            people={EXISTING_USERS}
+            placeholder="Select User Account"
+            value={selectedIdx}
+            onChange={handleAccountChange}
+          />
+          {hasSelection && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedIdx("");
+                onChange(prefix + "FirstName", "");
+                onChange(prefix + "LastName", "");
+                onChange(prefix + "Designation", "");
+                onChange(prefix + "Email", "");
+                onChange(prefix + "Phone", "");
+                onChange(prefix + "Mobile", "");
+              }}
+              className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Add New User
+            </button>
+          )}
+        </div>
       )}
-      <div className="space-y-4">
-        <div>
-          <Label required>First Name</Label>
-          <Input placeholder="First name" {...field("FirstName")} />
+
+      {!hasSelection && (
+        <div className="space-y-4">
+          <div>
+            <Label required>First Name</Label>
+            <Input placeholder="First name" {...field("FirstName")} />
+          </div>
+          <div>
+            <Label>Last Name</Label>
+            <Input placeholder="Last name" {...field("LastName")} />
+          </div>
+          <div>
+            <Label required>Designation</Label>
+            <Input placeholder="Designation" {...field("Designation")} />
+          </div>
+          <div>
+            <Label required>Email</Label>
+            <Input type="email" placeholder="Email" {...field("Email")} />
+          </div>
+          <div>
+            <Label>Phone (Official)</Label>
+            <PhoneInput placeholder="Phone" {...field("Phone")} />
+          </div>
+          <div>
+            <Label required>Mobile</Label>
+            <PhoneInput placeholder="Mobile" {...field("Mobile")} />
+          </div>
         </div>
-        <div>
-          <Label>Last Name</Label>
-          <Input placeholder="Last name" {...field("LastName")} />
-        </div>
-        <div>
-          <Label required>Designation</Label>
-          <Input placeholder="Designation" {...field("Designation")} />
-        </div>
-        <div>
-          <Label required>Email</Label>
-          <Input type="email" placeholder="Email" {...field("Email")} />
-        </div>
-        <div>
-          <Label>Phone (Official)</Label>
-          <PhoneInput placeholder="Phone" {...field("Phone")} />
-        </div>
-        <div>
-          <Label required>Mobile</Label>
-          <PhoneInput placeholder="Mobile" {...field("Mobile")} />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -319,29 +311,34 @@ function StepBar({ current }) {
 /* ── Step 1: Project & Owner Info ── */
 
 function Step1({ data, onChange }) {
-  const [mgrPickerOpen, setMgrPickerOpen] = useState(false);
+  const [selectedMgrIdx, setSelectedMgrIdx] = useState("");
 
   function f(name) {
     return { value: data[name] || "", onChange: (e) => onChange(name, e.target.value) };
   }
 
-  function handleSelectManager(person) {
-    onChange("mgrFirstName", person.firstName);
-    onChange("mgrLastName", person.lastName);
-    onChange("mgrDesignation", person.designation);
-    onChange("mgrEmail", person.email);
-    onChange("mgrPhone", person.phone);
-    onChange("mgrMobile", person.mobile);
+  function handleMgrAccountChange(e) {
+    const idx = e.target.value;
+    setSelectedMgrIdx(idx);
+    if (idx !== "") {
+      const person = EXISTING_MANAGERS[parseInt(idx)];
+      onChange("mgrFirstName", person.firstName);
+      onChange("mgrLastName", person.lastName);
+      onChange("mgrDesignation", person.designation);
+      onChange("mgrEmail", person.email);
+      onChange("mgrPhone", person.phone);
+      onChange("mgrMobile", person.mobile);
+    } else {
+      onChange("mgrFirstName", "");
+      onChange("mgrLastName", "");
+      onChange("mgrDesignation", "");
+      onChange("mgrEmail", "");
+      onChange("mgrPhone", "");
+      onChange("mgrMobile", "");
+    }
   }
 
-  function handleAddNewManager() {
-    onChange("mgrFirstName", "");
-    onChange("mgrLastName", "");
-    onChange("mgrDesignation", "");
-    onChange("mgrEmail", "");
-    onChange("mgrPhone", "");
-    onChange("mgrMobile", "");
-  }
+  const mgrSelected = selectedMgrIdx !== "";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -406,27 +403,7 @@ function Step1({ data, onChange }) {
 
         {/* Organization Manager */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-bold text-slate-800">Organization Manager</h3>
-            <button
-              type="button"
-              onClick={() => setMgrPickerOpen((o) => !o)}
-              className={`text-sm font-semibold transition-colors whitespace-nowrap ${
-                mgrPickerOpen ? "text-blue-800 underline" : "text-blue-600 hover:text-blue-800 hover:underline"
-              }`}
-            >
-              Use Existing Manager
-            </button>
-          </div>
-
-          <PersonPicker
-            open={mgrPickerOpen}
-            people={EXISTING_MANAGERS}
-            onSelect={handleSelectManager}
-            onAddNew={handleAddNewManager}
-            addNewLabel="Add New Manager"
-            onClose={() => setMgrPickerOpen(false)}
-          />
+          <h3 className="text-base font-bold text-slate-800 mb-3">Organization Manager</h3>
 
           <div className="flex items-start gap-2.5 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-5">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
@@ -440,40 +417,80 @@ function Step1({ data, onChange }) {
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label required>First Name</Label>
-              <Input placeholder="First name" {...f("mgrFirstName")} />
+          {/* Account selector */}
+          <div className="mb-4">
+            <div className="flex items-center gap-1.5 mb-1">
+              <label className="block text-sm font-medium text-slate-700">Account</label>
+              <div className="group relative">
+                <Info className="w-3.5 h-3.5 text-blue-400 cursor-help" />
+                <div className="absolute bottom-5 left-0 w-52 bg-slate-800 text-white text-xs rounded-lg px-2 py-1.5 opacity-0 group-hover:opacity-100 transition pointer-events-none z-10">
+                  Select an existing manager account or leave blank to create new
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Last Name</Label>
-              <Input placeholder="Last name" {...f("mgrLastName")} />
-            </div>
-            <div>
-              <Label required>Designation</Label>
-              <Input placeholder="Designation" {...f("mgrDesignation")} />
-            </div>
-            <div>
-              <Label required>Email</Label>
-              <Input type="email" placeholder="Email" {...f("mgrEmail")} />
-            </div>
-            <div>
-              <Label>Phone (Official)</Label>
-              <PhoneInput
-                placeholder="(at least phone/mobile is required)"
-                value={data.mgrPhone || ""}
-                onChange={(e) => onChange("mgrPhone", e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Mobile number</Label>
-              <PhoneInput
-                placeholder="(at least phone/mobile is required)"
-                value={data.mgrMobile || ""}
-                onChange={(e) => onChange("mgrMobile", e.target.value)}
-              />
-            </div>
+            <AccountSelect
+              people={EXISTING_MANAGERS}
+              placeholder="Select Manager Account"
+              value={selectedMgrIdx}
+              onChange={handleMgrAccountChange}
+            />
+            {mgrSelected && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedMgrIdx("");
+                  onChange("mgrFirstName", "");
+                  onChange("mgrLastName", "");
+                  onChange("mgrDesignation", "");
+                  onChange("mgrEmail", "");
+                  onChange("mgrPhone", "");
+                  onChange("mgrMobile", "");
+                }}
+                className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Add New Manager
+              </button>
+            )}
           </div>
+
+          {/* Form fields — hidden when an existing manager is selected */}
+          {!mgrSelected && (
+            <div className="space-y-4">
+              <div>
+                <Label required>First Name</Label>
+                <Input placeholder="First name" {...f("mgrFirstName")} />
+              </div>
+              <div>
+                <Label>Last Name</Label>
+                <Input placeholder="Last name" {...f("mgrLastName")} />
+              </div>
+              <div>
+                <Label required>Designation</Label>
+                <Input placeholder="Designation" {...f("mgrDesignation")} />
+              </div>
+              <div>
+                <Label required>Email</Label>
+                <Input type="email" placeholder="Email" {...f("mgrEmail")} />
+              </div>
+              <div>
+                <Label>Phone (Official)</Label>
+                <PhoneInput
+                  placeholder="(at least phone/mobile is required)"
+                  value={data.mgrPhone || ""}
+                  onChange={(e) => onChange("mgrPhone", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Mobile number</Label>
+                <PhoneInput
+                  placeholder="(at least phone/mobile is required)"
+                  value={data.mgrMobile || ""}
+                  onChange={(e) => onChange("mgrMobile", e.target.value)}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
