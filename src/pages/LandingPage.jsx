@@ -24,13 +24,22 @@ import {
   ShieldCheck,
   ChevronDown,
   BookOpen,
+  Cloud,
+  Layers,
 } from "lucide-react";
 import { Link } from "wouter";
 
 const BASE = import.meta.env.BASE_URL;
 
 const NAV_LINKS = [
-  { label: "Services", href: "#services" },
+  {
+    label: "Services",
+    dropdown: true,
+    items: [
+      { label: "Request Based Service", icon: Layers, href: "#request-service" },
+      { label: "Cloud Service", icon: Cloud, href: "#cloud-service" },
+    ],
+  },
   { label: "Cost Estimator", href: "#cost-estimator" },
   { label: "Forms & Agreements", href: "#forms" },
   {
@@ -142,13 +151,13 @@ const fadeUp = {
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [manualsOpen, setManualsOpen] = useState(false);
-  const manualsRef = useRef(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const navRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (manualsRef.current && !manualsRef.current.contains(e.target)) {
-        setManualsOpen(false);
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setOpenDropdown(null);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -169,34 +178,38 @@ export default function LandingPage() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1" ref={navRef}>
             {NAV_LINKS.map((link) =>
               link.dropdown ? (
-                <div key={link.label} className="relative" ref={manualsRef}>
+                <div key={link.label} className="relative">
                   <button
-                    onClick={() => setManualsOpen((o) => !o)}
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === link.label ? null : link.label)
+                    }
                     className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                      manualsOpen
+                      openDropdown === link.label
                         ? "text-blue-700 bg-blue-50"
                         : "text-slate-600 hover:text-blue-700 hover:bg-blue-50"
                     }`}
                   >
                     {link.label}
                     <ChevronDown
-                      className={`w-3.5 h-3.5 transition-transform duration-200 ${manualsOpen ? "rotate-180" : ""}`}
+                      className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        openDropdown === link.label ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
-                  {manualsOpen && (
+                  {openDropdown === link.label && (
                     <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl border border-slate-200 shadow-lg py-1.5 z-50">
                       <p className="px-4 pt-1 pb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                        User Manuals
+                        {link.label}
                       </p>
                       {link.items.map((item) => (
                         <a
                           key={item.label}
                           href={item.href}
-                          onClick={() => setManualsOpen(false)}
+                          onClick={() => setOpenDropdown(null)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:text-blue-700 hover:bg-blue-50 transition-colors"
                         >
                           <item.icon className="w-4 h-4 text-blue-500 shrink-0" />
