@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock } from "lucide-react";
+import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +51,19 @@ const ORGANIZATIONS = [
   "DESCO – Dhaka Electric Supply Company",
   "DPDC – Dhaka Power Distribution Company",
   "NID Wing, Election Commission",
+];
+
+const EXISTING_MANAGERS = [
+  { firstName: "Md. Kamal", lastName: "Hossain", designation: "Deputy Director", email: "k.hossain@rajuk.gov.bd", phone: "1711223344", mobile: "1811223344" },
+  { firstName: "Nasrin", lastName: "Sultana", designation: "Assistant Director", email: "n.sultana@rajuk.gov.bd", phone: "1812345678", mobile: "1912345678" },
+  { firstName: "Rafiqul", lastName: "Islam", designation: "Senior Manager", email: "r.islam@rajuk.gov.bd", phone: "1911234567", mobile: "1711234567" },
+];
+
+const EXISTING_USERS = [
+  { firstName: "Tanvir", lastName: "Ahmed", designation: "System Analyst", email: "t.ahmed@rajuk.gov.bd", phone: "1711334455", mobile: "1811334455" },
+  { firstName: "Farhana", lastName: "Begum", designation: "IT Officer", email: "f.begum@rajuk.gov.bd", phone: "1812233445", mobile: "1912233445" },
+  { firstName: "Sajjad", lastName: "Hossain", designation: "Network Engineer", email: "s.hossain@rajuk.gov.bd", phone: "1912345678", mobile: "1812345678" },
+  { firstName: "Ruma", lastName: "Akter", designation: "Database Admin", email: "r.akter@rajuk.gov.bd", phone: "1611223344", mobile: "1711223344" },
 ];
 
 /* ── Shared UI helpers ── */
@@ -124,23 +137,113 @@ function InfoBanner({ children }) {
   );
 }
 
+/* ── Person Picker dropdown ── */
+
+function PersonPicker({ open, people, onSelect, onAddNew, addNewLabel, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="mb-5 rounded-xl border border-blue-200 bg-white shadow-md overflow-hidden">
+      <div className="px-4 py-2.5 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
+        <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Select Existing</span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
+        >
+          ✕ Close
+        </button>
+      </div>
+      <div className="divide-y divide-slate-100 max-h-56 overflow-y-auto">
+        {people.map((person, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => { onSelect(person); onClose(); }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-sm font-bold text-blue-700 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              {person.firstName[0]}{person.lastName[0]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-800 truncate">
+                {person.firstName} {person.lastName}
+              </p>
+              <p className="text-xs text-slate-500 truncate">
+                {person.designation} · {person.email}
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors shrink-0" />
+          </button>
+        ))}
+      </div>
+      <div className="px-4 py-3 bg-slate-50 border-t border-slate-200">
+        <button
+          type="button"
+          onClick={() => { onAddNew(); onClose(); }}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition w-full justify-center"
+        >
+          <UserPlus className="w-4 h-4" />
+          {addNewLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ContactFormGroup({ prefix, data, onChange, title, showUseExisting = false }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+
   function field(name) {
     return {
       value: data[prefix + name] || "",
       onChange: (e) => onChange(prefix + name, e.target.value),
     };
   }
+
+  function handleSelectUser(person) {
+    onChange(prefix + "FirstName", person.firstName);
+    onChange(prefix + "LastName", person.lastName);
+    onChange(prefix + "Designation", person.designation);
+    onChange(prefix + "Email", person.email);
+    onChange(prefix + "Phone", person.phone);
+    onChange(prefix + "Mobile", person.mobile);
+  }
+
+  function handleAddNewUser() {
+    onChange(prefix + "FirstName", "");
+    onChange(prefix + "LastName", "");
+    onChange(prefix + "Designation", "");
+    onChange(prefix + "Email", "");
+    onChange(prefix + "Phone", "");
+    onChange(prefix + "Mobile", "");
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold text-slate-800">{title}</h3>
         {showUseExisting && (
-          <button type="button" className="text-sm font-semibold text-blue-600 hover:underline">
+          <button
+            type="button"
+            onClick={() => setPickerOpen((o) => !o)}
+            className={`text-sm font-semibold transition-colors ${
+              pickerOpen ? "text-blue-800 underline" : "text-blue-600 hover:underline"
+            }`}
+          >
             Use Existing User
           </button>
         )}
       </div>
+      {showUseExisting && (
+        <PersonPicker
+          open={pickerOpen}
+          people={EXISTING_USERS}
+          onSelect={handleSelectUser}
+          onAddNew={handleAddNewUser}
+          addNewLabel="Add New User"
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
       <div className="space-y-4">
         <div>
           <Label required>First Name</Label>
@@ -216,9 +319,30 @@ function StepBar({ current }) {
 /* ── Step 1: Project & Owner Info ── */
 
 function Step1({ data, onChange }) {
+  const [mgrPickerOpen, setMgrPickerOpen] = useState(false);
+
   function f(name) {
     return { value: data[name] || "", onChange: (e) => onChange(name, e.target.value) };
   }
+
+  function handleSelectManager(person) {
+    onChange("mgrFirstName", person.firstName);
+    onChange("mgrLastName", person.lastName);
+    onChange("mgrDesignation", person.designation);
+    onChange("mgrEmail", person.email);
+    onChange("mgrPhone", person.phone);
+    onChange("mgrMobile", person.mobile);
+  }
+
+  function handleAddNewManager() {
+    onChange("mgrFirstName", "");
+    onChange("mgrLastName", "");
+    onChange("mgrDesignation", "");
+    onChange("mgrEmail", "");
+    onChange("mgrPhone", "");
+    onChange("mgrMobile", "");
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* ── Left column: Project Info + Organization Manager ── */}
@@ -286,11 +410,23 @@ function Step1({ data, onChange }) {
             <h3 className="text-base font-bold text-slate-800">Organization Manager</h3>
             <button
               type="button"
-              className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors whitespace-nowrap"
+              onClick={() => setMgrPickerOpen((o) => !o)}
+              className={`text-sm font-semibold transition-colors whitespace-nowrap ${
+                mgrPickerOpen ? "text-blue-800 underline" : "text-blue-600 hover:text-blue-800 hover:underline"
+              }`}
             >
               Use Existing Manager
             </button>
           </div>
+
+          <PersonPicker
+            open={mgrPickerOpen}
+            people={EXISTING_MANAGERS}
+            onSelect={handleSelectManager}
+            onAddNew={handleAddNewManager}
+            addNewLabel="Add New Manager"
+            onClose={() => setMgrPickerOpen(false)}
+          />
 
           <div className="flex items-start gap-2.5 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 mb-5">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
