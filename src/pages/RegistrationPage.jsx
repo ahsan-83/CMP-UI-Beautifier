@@ -648,6 +648,11 @@ function Step3({ data, onChange }) {
 const AGREEMENT_PDF_URL =
   "https://cmp-stage.bcc.gov.bd:8443//UnsignedFA/Hortex_Foundation_Frame_Agreement.pdf";
 
+const AGREEMENT_VIEWER_URL =
+  "https://docs.google.com/viewer?url=" +
+  encodeURIComponent(AGREEMENT_PDF_URL) +
+  "&embedded=true";
+
 function PdfViewerOverlay({ onClose }) {
   return (
     <div className="fixed inset-0 z-[200] flex flex-col" style={{ background: "#0f1a2b" }}>
@@ -693,12 +698,13 @@ function PdfViewerOverlay({ onClose }) {
         </div>
       </div>
 
-      {/* ── PDF iframe ── */}
+      {/* ── PDF iframe via Google Docs Viewer ── */}
       <div className="flex-1 overflow-hidden bg-slate-700">
         <iframe
-          src={AGREEMENT_PDF_URL}
+          src={AGREEMENT_VIEWER_URL}
           title="Frame Agreement Document"
           className="w-full h-full border-0"
+          allow="fullscreen"
         />
       </div>
 
