@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus } from "lucide-react";
+import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus, FileText, Download } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -645,87 +645,191 @@ function Step3({ data, onChange }) {
 
 /* ── Step 4: Agreement & Timeline ── */
 
-function Step4({ data, onChange }) {
-  const [generated, setGenerated] = useState(false);
+const AGREEMENT_PDF_URL =
+  "https://cmp-stage.bcc.gov.bd:8443//UnsignedFA/Hortex_Foundation_Frame_Agreement.pdf";
 
+function PdfViewerOverlay({ onClose }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h2 className="text-2xl font-extrabold text-blue-700 mb-1">Almost Done!</h2>
-        <p className="text-sm text-slate-500">Review your contract duration and generate the agreement document.</p>
-      </div>
-
-      {/* Contract Duration */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-        <h3 className="text-base font-bold text-slate-800 mb-4">Choose Contract Duration</h3>
-        <div className="flex items-center gap-6">
-          {["unlimited", "limited"].map((opt) => (
-            <label key={opt} className="flex items-center gap-2.5 cursor-pointer group">
-              <div
-                onClick={() => onChange("contractDuration", opt)}
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                  data.contractDuration === opt
-                    ? "border-blue-600 bg-blue-600"
-                    : "border-slate-300 group-hover:border-blue-400"
-                }`}
-              >
-                {data.contractDuration === opt && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-              <span className="text-sm font-medium text-slate-700 capitalize">{opt}</span>
-            </label>
-          ))}
+    <div className="fixed inset-0 z-[200] flex flex-col" style={{ background: "#0f1a2b" }}>
+      {/* ── Themed header bar ── */}
+      <div
+        className="flex items-center justify-between px-5 py-3 shrink-0 border-b"
+        style={{ background: "#152035", borderColor: "rgba(255,255,255,0.08)" }}
+      >
+        {/* Left: icon + title */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p className="text-xs font-medium text-blue-300 uppercase tracking-wider leading-none mb-0.5">
+              Agreement Document
+            </p>
+            <p className="text-sm font-bold text-white leading-none">
+              Frame Agreement — Hortex Foundation
+            </p>
+          </div>
         </div>
 
-        {data.contractDuration === "limited" && (
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div>
-              <Label required>Start Date</Label>
-              <Input type="date" value={data.startDate || ""} onChange={(e) => onChange("startDate", e.target.value)} />
-            </div>
-            <div>
-              <Label required>End Date</Label>
-              <Input type="date" value={data.endDate || ""} onChange={(e) => onChange("endDate", e.target.value)} />
-            </div>
-          </div>
-        )}
+        {/* Right: download + confirm */}
+        <div className="flex items-center gap-2">
+          <a
+            href={AGREEMENT_PDF_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-blue-300 hover:text-white border border-blue-700 hover:border-blue-500 rounded-lg transition"
+          >
+            <Download className="w-4 h-4" />
+            Download
+          </a>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition shadow-sm"
+          >
+            <Check className="w-4 h-4" />
+            Close &amp; Confirm
+          </button>
+        </div>
       </div>
 
-      {/* Generate Agreement */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p className="text-sm text-blue-800 leading-relaxed">
-          We will generate your Contract Agreement Document with provided information.{" "}
-          <br className="hidden sm:block" />
-          Please Click{" "}
-          <span className="font-bold text-blue-700">Generate Agreement</span> before proceeding.
+      {/* ── PDF iframe ── */}
+      <div className="flex-1 overflow-hidden bg-slate-700">
+        <iframe
+          src={AGREEMENT_PDF_URL}
+          title="Frame Agreement Document"
+          className="w-full h-full border-0"
+        />
+      </div>
+
+      {/* ── Thin footer bar ── */}
+      <div
+        className="shrink-0 px-5 py-2 flex items-center justify-between"
+        style={{ background: "#152035", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+      >
+        <p className="text-xs text-slate-400">
+          Please review the full agreement before confirming.
         </p>
         <button
           type="button"
-          onClick={() => setGenerated(true)}
-          className={`shrink-0 px-5 py-2.5 text-sm font-semibold rounded-lg transition shadow-sm ${
-            generated
-              ? "bg-emerald-600 text-white cursor-default"
-              : "bg-blue-700 hover:bg-blue-800 text-white"
-          }`}
+          onClick={onClose}
+          className="text-xs font-semibold text-blue-400 hover:text-blue-200 transition"
         >
-          {generated ? (
-            <span className="flex items-center gap-2">
-              <Check className="w-4 h-4" /> Generated
-            </span>
-          ) : (
-            "Generate Agreement"
-          )}
+          Close &amp; Confirm ›
         </button>
       </div>
-
-      {generated && (
-        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-700 flex items-center gap-2">
-          <Check className="w-4 h-4 shrink-0" />
-          Agreement document generated successfully. You may now submit your registration.
-        </div>
-      )}
     </div>
+  );
+}
+
+function Step4({ data, onChange }) {
+  const [generated, setGenerated] = useState(false);
+  const [showPdf, setShowPdf] = useState(false);
+
+  function handleGenerate() {
+    setShowPdf(true);
+  }
+
+  function handlePdfClose() {
+    setShowPdf(false);
+    setGenerated(true);
+  }
+
+  return (
+    <>
+      {/* Full-screen PDF viewer */}
+      {showPdf && <PdfViewerOverlay onClose={handlePdfClose} />}
+
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 max-w-2xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-2xl font-extrabold text-blue-700 mb-1">Almost Done!</h2>
+          <p className="text-sm text-slate-500">Review your contract duration and generate the agreement document.</p>
+        </div>
+
+        {/* Contract Duration */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+          <h3 className="text-base font-bold text-slate-800 mb-4">Choose Contract Duration</h3>
+          <div className="flex items-center gap-6">
+            {["unlimited", "limited"].map((opt) => (
+              <label key={opt} className="flex items-center gap-2.5 cursor-pointer group">
+                <div
+                  onClick={() => onChange("contractDuration", opt)}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    data.contractDuration === opt
+                      ? "border-blue-600 bg-blue-600"
+                      : "border-slate-300 group-hover:border-blue-400"
+                  }`}
+                >
+                  {data.contractDuration === opt && (
+                    <div className="w-2 h-2 rounded-full bg-white" />
+                  )}
+                </div>
+                <span className="text-sm font-medium text-slate-700 capitalize">{opt}</span>
+              </label>
+            ))}
+          </div>
+
+          {data.contractDuration === "limited" && (
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div>
+                <Label required>Start Date</Label>
+                <Input type="date" value={data.startDate || ""} onChange={(e) => onChange("startDate", e.target.value)} />
+              </div>
+              <div>
+                <Label required>End Date</Label>
+                <Input type="date" value={data.endDate || ""} onChange={(e) => onChange("endDate", e.target.value)} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Generate Agreement */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="text-sm text-blue-800 leading-relaxed">
+            We will generate your Contract Agreement Document with provided information.{" "}
+            <br className="hidden sm:block" />
+            Please Click{" "}
+            <span className="font-bold text-blue-700">Generate Agreement</span> before proceeding.
+          </p>
+          <button
+            type="button"
+            onClick={generated ? undefined : handleGenerate}
+            className={`shrink-0 px-5 py-2.5 text-sm font-semibold rounded-lg transition shadow-sm ${
+              generated
+                ? "bg-emerald-600 text-white cursor-default"
+                : "bg-blue-700 hover:bg-blue-800 text-white"
+            }`}
+          >
+            {generated ? (
+              <span className="flex items-center gap-2">
+                <Check className="w-4 h-4" /> Generated
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Generate Agreement
+              </span>
+            )}
+          </button>
+        </div>
+
+        {generated && (
+          <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-700 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 shrink-0" />
+              Agreement document generated successfully. You may now submit your registration.
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPdf(true)}
+              className="shrink-0 text-xs font-semibold text-emerald-700 underline hover:text-emerald-900 transition"
+            >
+              View again
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
