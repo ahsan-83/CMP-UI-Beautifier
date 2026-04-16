@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus, FileText, Download } from "lucide-react";
+import { Check, Menu, X, Info, ChevronDown, BadgeCheck, Home, Clock, UserPlus, FileText, Download, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import {
   Dialog,
   DialogContent,
 } from "../components/ui/dialog";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -648,26 +656,80 @@ function Step3({ data, onChange }) {
 const AGREEMENT_PDF_URL =
   "https://cmp-stage.bcc.gov.bd:8443//UnsignedFA/Hortex_Foundation_Frame_Agreement.pdf";
 
-const AGREEMENT_VIEWER_URL =
-  "https://docs.google.com/viewer?url=" +
-  encodeURIComponent(AGREEMENT_PDF_URL) +
-  "&embedded=true";
 
 function PdfViewerOverlay({ onClose }) {
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageWidth, setPageWidth] = useState(700);
+  const containerRef = useRef(null);
+  const objectUrlRef = useRef(null);
+
+  /* Fetch PDF as blob so we own the data — no iframe restrictions */
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(null);
+
+    fetch(AGREEMENT_PDF_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (cancelled) return;
+        const url = URL.createObjectURL(blob);
+        objectUrlRef.current = url;
+        setPdfUrl(url);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setFetchError(err.message || "Failed to download the agreement.");
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
+    };
+  }, []);
+
+  /* Track container width for responsive page rendering */
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0].contentRect.width;
+      if (w > 0) setPageWidth(Math.min(w - 48, 900));
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
+
   return (
     <div className="fixed inset-0 z-[200] flex flex-col" style={{ background: "#0f1a2b" }}>
-      {/* ── Themed header bar ── */}
+
+      {/* ── Header ── */}
       <div
-        className="flex items-center justify-between px-5 py-3 shrink-0 border-b"
-        style={{ background: "#152035", borderColor: "rgba(255,255,255,0.08)" }}
+        className="flex items-center justify-between px-5 py-3 shrink-0"
+        style={{ background: "#152035", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
       >
-        {/* Left: icon + title */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
             <FileText className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-xs font-medium text-blue-300 uppercase tracking-wider leading-none mb-0.5">
+            <p className="text-[10px] font-semibold text-blue-300 uppercase tracking-wider leading-none mb-0.5">
               Agreement Document
             </p>
             <p className="text-sm font-bold text-white leading-none">
@@ -676,7 +738,6 @@ function PdfViewerOverlay({ onClose }) {
           </div>
         </div>
 
-        {/* Right: download + confirm */}
         <div className="flex items-center gap-2">
           <a
             href={AGREEMENT_PDF_URL}
@@ -698,32 +759,102 @@ function PdfViewerOverlay({ onClose }) {
         </div>
       </div>
 
-      {/* ── PDF iframe via Google Docs Viewer ── */}
-      <div className="flex-1 overflow-hidden bg-slate-700">
-        <iframe
-          src={AGREEMENT_VIEWER_URL}
-          title="Frame Agreement Document"
-          className="w-full h-full border-0"
-          allow="fullscreen"
-        />
+      {/* ── Body ── */}
+      <div ref={containerRef} className="flex-1 overflow-y-auto flex flex-col items-center py-6 px-4" style={{ background: "#1e2d42" }}>
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center flex-1 gap-4 text-white">
+            <Loader2 className="w-10 h-10 text-blue-400 animate-spin" />
+            <p className="text-sm text-blue-200">Downloading agreement document…</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {!loading && fetchError && (
+          <div className="flex flex-col items-center justify-center flex-1 gap-5 text-center max-w-md">
+            <div className="w-14 h-14 rounded-full bg-rose-900/40 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-rose-400" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-white mb-1">Could not load document</p>
+              <p className="text-sm text-slate-400 mb-4">{fetchError}</p>
+              <a
+                href={AGREEMENT_PDF_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition"
+              >
+                <Download className="w-4 h-4" />
+                Open PDF directly in browser
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* PDF Pages */}
+        {!loading && pdfUrl && (
+          <Document
+            file={pdfUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={
+              <div className="flex items-center gap-3 text-blue-200 py-10">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span className="text-sm">Rendering pages…</span>
+              </div>
+            }
+            error={
+              <div className="flex items-center gap-2 text-rose-300 py-10">
+                <AlertCircle className="w-5 h-5" />
+                <span className="text-sm">Failed to parse the PDF file.</span>
+              </div>
+            }
+          >
+            <div className="rounded-lg overflow-hidden shadow-2xl">
+              <Page
+                pageNumber={pageNumber}
+                width={pageWidth}
+                renderTextLayer
+                renderAnnotationLayer
+              />
+            </div>
+          </Document>
+        )}
       </div>
 
-      {/* ── Thin footer bar ── */}
-      <div
-        className="shrink-0 px-5 py-2 flex items-center justify-between"
-        style={{ background: "#152035", borderTop: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <p className="text-xs text-slate-400">
-          Please review the full agreement before confirming.
-        </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-xs font-semibold text-blue-400 hover:text-blue-200 transition"
+      {/* ── Footer / page navigation ── */}
+      {!loading && numPages && (
+        <div
+          className="shrink-0 flex items-center justify-between px-5 py-3"
+          style={{ background: "#152035", borderTop: "1px solid rgba(255,255,255,0.08)" }}
         >
-          Close &amp; Confirm ›
-        </button>
-      </div>
+          <p className="text-xs text-slate-400">
+            Please review the full agreement before confirming.
+          </p>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              disabled={pageNumber <= 1}
+              onClick={() => setPageNumber((p) => p - 1)}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Prev
+            </button>
+            <span className="text-xs text-slate-300 tabular-nums">
+              Page {pageNumber} of {numPages}
+            </span>
+            <button
+              type="button"
+              disabled={pageNumber >= numPages}
+              onClick={() => setPageNumber((p) => p + 1)}
+              className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-slate-700 hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
