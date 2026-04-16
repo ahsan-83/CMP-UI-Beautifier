@@ -654,7 +654,7 @@ function Step3({ data, onChange }) {
 /* ── Step 4: Agreement & Timeline ── */
 
 const AGREEMENT_PDF_URL =
-  "https://cmp-stage.bcc.gov.bd:8443//UnsignedFA/Hortex_Foundation_Frame_Agreement.pdf";
+  "https://file-examples.com/storage/fe97296a1b69e064d973309/2017/10/file-sample_150kB.pdf";
 
 
 function PdfViewerOverlay({ onClose }) {
